@@ -60,12 +60,12 @@
     </header>
     <section class="hero">
       <div class="hero-copy"><div class="eyebrow">PERSONAL POKÉDEX</div><h1>集めたポケモンを、<br><span>自分だけの図鑑に。</span></h1><p>一度でも入手したらチェック。通常・フォルム・色違い・性差・衣装をそれぞれ独立管理します。</p></div>
-      <div class="overall"><div class="ring" id="overall-ring"><div><strong id="overall-pct">–%</strong><span>総合達成率</span></div></div><div class="overall-caption"><strong id="overall-numbers">読み込み中</strong><span id="overall-scope-label">実装確認済みの進捗（2026/11/06）</span></div></div>
+      <div class="overall"><div class="ring" id="overall-ring"><div><strong id="overall-pct">–%</strong><span>総合達成率</span></div></div><div class="overall-caption"><strong id="overall-numbers">読み込み中</strong><span id="overall-scope-label">実装確認済みの進捗（2026/11/07）</span></div></div>
     </section>
     <div class="notice" id="data-status" role="status"><span class="pulse"></span> ポケモンのデータを読み込んでいます…</div>
     <section class="summary-grid" id="summary-grid" aria-label="カテゴリ別の達成状況"></section>
     <main class="workspace">
-      <div class="workspace-top"><div><div class="eyebrow dark">YOUR COLLECTION</div><h2>コンプチェッカー</h2></div><div class="workspace-actions"><button type="button" class="button secondary" id="order-open" hidden>ピカチュウ並び順</button><button type="button" class="button secondary" id="bulk-select" title="現在の絞り込みに一致する全項目を入手済みにする">✓ 全て選択</button><button type="button" class="button secondary" id="bulk-clear" title="現在の絞り込みに一致する全項目のチェックを解除">全て解除</button><a class="button secondary" href="./missing-pokemon.csv" download="pokemon-go-missing-images.csv" title="Googleドライブにある図鑑画像で未確認の230匹の一覧">不足画像CSV（230種）</a><button type="button" class="button secondary" id="add-open">＋ 項目を追加</button></div></div>
+      <div class="workspace-top"><div><div class="eyebrow dark">YOUR COLLECTION</div><h2>コンプチェッカー</h2></div><div class="workspace-actions"><button type="button" class="button secondary" id="order-open" hidden>ピカチュウ並び順</button><button type="button" class="button secondary" id="bulk-select" title="現在の絞り込みに一致する全項目を入手済みにする">✓ 全て選択</button><button type="button" class="button secondary" id="bulk-clear" title="現在の絞り込みに一致する全項目のチェックを解除">全て解除</button><a class="button secondary" href="./missing-pokemon.csv" download="pokemon-go-missing-images.csv" title="Googleドライブにある図鑑画像で未確認の230匹の一覧">不足画像CSV（230種）</a><a class="button secondary" href="./pika-costume-audit.csv" download="pika-costume-audit.csv" title="ピカチュウ衣装104種類の通常色・色違いの確認状況">衣装104件の精査CSV</a><button type="button" class="button secondary" id="add-open">＋ 項目を追加</button></div></div>
       <nav class="tabs" id="category-tabs" aria-label="カテゴリ切り替え"></nav>
       <section class="controls" aria-label="表示条件">
         <div class="search-wrap"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="ポケモン名・図鑑番号・フォルム名で検索" autocomplete="off" aria-label="検索" /></div>
@@ -83,7 +83,7 @@
       <div class="cards" id="cards" aria-live="polite"></div>
       <div id="empty" class="empty" hidden><div>◌</div><strong>該当するポケモンがありません</strong><span>検索条件・フィルタを変更してください。</span></div>
       <button type="button" class="button load-more" id="load-more" hidden>さらに表示する</button>
-      <p class="helper" id="catalog-help">※ 実装情報は2026年11月6日時点の確認結果です。公開データをもとにした判定のため、未確認のフォルム・衣装は引き続き調査対象です。※ 通常表示では実装確認済みのみを集計します。フォルム・性差のタブでは未実装・確認中もすべて一覧に掲載します（通常の達成率には含まれません）。「未実装・未確認も表示」をオンにすると、その項目も分母・入手済み数に加え、チェックの操作で進捗バーが変動します。衣装の色違いも確認中のものはオンのときだけ集計します。※ Googleドライブの図鑑スクリーンショットから画像を切り出しました。画像不足は未所持を意味せず、未実装・未解禁や撮影範囲外も含みます。「不足画像CSV」で図鑑番号別に確認できます。※ 「全て選択／全て解除」は現在のタブで検索・絞り込みに一致する全項目（続きを含む）に適用します。オス・メスはそれぞれ独立、衣装は通常色・色違いを別タブで管理します。フォルム・衣装にはゲームデータなどを基にした候補を含みます。実装状況や色違いの解禁状況は、個々に検証済みとは限りません。</p>
+      <p class="helper" id="catalog-help">※ 実装情報は2026年11月7日時点の確認結果です。公開データをもとにした判定のため、未確認のフォルム・衣装は引き続き調査対象です。※ 通常表示では実装確認済みのみを集計します。フォルム・性差・衣装のタブでは未実装・確認中もすべて一覧に掲載します（通常の達成率には含まれません）。「未実装・未確認も表示」をオンにすると、その項目も分母・入手済み数に加え、チェックの操作で進捗バーが変動します。衣装の色違いも確認中のものはオンのときだけ集計します。色違い未解禁の衣装は進捗から除外します。※ Googleドライブの図鑑スクリーンショットから画像を切り出しました。画像不足は未所持を意味せず、未実装・未解禁や撮影範囲外も含みます。「不足画像CSV」で図鑑番号別に確認できます。※ 「全て選択／全て解除」は現在のタブで検索・絞り込みに一致する全項目（続きを含む）に適用します。オス・メスはそれぞれ独立、衣装は通常色・色違いを別タブで管理します。フォルム・衣装にはゲームデータなどを基にした候補を含みます。実装状況や色違いの解禁状況は、個々に検証済みとは限りません。</p>
     </main>
     <aside class="side-scroll" aria-label="ページ内スクロール"><button type="button" id="scroll-top" aria-label="ページの先頭へ" title="先頭へ">↑</button><button type="button" id="scroll-bottom" aria-label="ページの末尾へ" title="末尾へ">↓</button></aside>
     <footer><span>個人用・非公式ファンツール / データはこのブラウザ内に保存</span><span>Pokémonおよび関連名称・画像の権利は各権利者に帰属します。</span></footer>
@@ -96,7 +96,7 @@
 /* Pokémon GO personal collection tracker. No accounts or analytics. */
 (() => {
   'use strict';
-  const VERSION = '2.5.0';
+  const VERSION = '2.6.0';
   const STORE_KEY = 'pogo-personal-collection-v1';
   const CACHE_KEY = 'pogo-catalog-cache-v1';
   const PAGE_SIZE = 120;
@@ -110,8 +110,8 @@
     {id:'shinyforms',title:'色違い・別フォルム',short:'色違いフォルム',subtitle:'姿・地域違い',note:'フォルムごとの色違いもそれぞれ独立しています。'},
     {id:'gender',title:'オス・メス差分',short:'オス・メス',subtitle:'性差のある姿',note:'本編で性別によって姿が違うポケモンを、オスとメス別々にチェックします。'},
     {id:'shinygender',title:'色違い・オス・メス差分',short:'色違いオス・メス',subtitle:'色違いの性差',note:'色違いのオスとメスを別々に管理します。通常色のオス・メスとは独立してチェックできます。'},
-    {id:'costumepika',title:'衣装・ピカチュウ',short:'衣装ピカチュウ',subtitle:'通常色',note:'ピカチュウの衣装104候補を通常色で管理します。未確認も表示します。'},
-    {id:'shinycostumepika',title:'色違い・衣装ピカチュウ',short:'色違い衣装ピカチュウ',subtitle:'色違い衣装',note:'ピカチュウ衣装の色違いを独立して管理します。解禁未確認も表示します。'},
+    {id:'costumepika',title:'衣装・ピカチュウ',short:'衣装ピカチュウ',subtitle:'通常色',note:'ピカチュウ衣装104候補（登場済み101・登場予定3）の通常色を管理します。すべて表示します。'},
+    {id:'shinycostumepika',title:'色違い・衣装ピカチュウ',short:'色違い衣装ピカチュウ',subtitle:'色違い衣装',note:'ピカチュウ衣装色違い104候補（解禁照合済み99・未確認1・未解禁1・登場予定3）を独立管理します。'},
     {id:'costumeother',title:'衣装・その他',short:'衣装その他',subtitle:'通常色',note:'ピカチュウ以外の衣装の通常色を管理します。'},
     {id:'shinycostumeother',title:'色違い・衣装その他',short:'色違い衣装その他',subtitle:'色違い衣装',note:'ピカチュウ以外の衣装の色違いを独立して管理します。解禁未確認も表示します。'},
   ];
@@ -615,7 +615,7 @@
       sourceStatus=LOCAL_ATLAS_INFO?'ready':'partial';
       if(LOCAL_ATLAS_INFO&&GO_FILES.size){
         els.status.className='notice success';
-        els.status.textContent='図鑑・画像・2026年11月6日時点の実装状況を読み込みました。未実装・未確認を表示すると、そのチェックも進捗に反映します。';
+        els.status.textContent='図鑑・画像・2026年11月7日時点の実装状況を読み込みました。未実装・未確認を表示すると、そのチェックも進捗に反映します。';
       }else{
         els.status.className='notice warn';
         els.status.textContent='図鑑は読み込めましたが、画像索引の一部を取得できません。外部の参考画像が表示される場合があります。';
@@ -640,7 +640,7 @@
     const pg=CATS.map(c=>[c,progress(c.id)]);
     const count=pg.reduce((a,[c,p])=>({owned:a.owned+p.owned,total:a.total+p.total}),{owned:0,total:0});
     const pct=percent(count.owned,count.total);
-    $('overall-scope-label').textContent=els.showUnreleased.checked?'未実装・確認中も含むチェック進捗':'実装確認済みの進捗（2026/11/06）';
+    $('overall-scope-label').textContent=els.showUnreleased.checked?'未実装・確認中も含むチェック進捗':'実装確認済みの進捗（2026/11/07）';
     $('overall-ring').style.setProperty('--pct',pct);$('overall-pct').textContent=pct+'%';$('overall-numbers').textContent=`${count.owned.toLocaleString()} / ${count.total.toLocaleString()}`;
     els.summary.innerHTML=pg.map(([c,p])=>`<button type="button" class="summary ${active===c.id?'selected':''}" data-cat="${c.id}"><small>${esc(c.subtitle)}</small><h3>${esc(c.title)}</h3><div class="stat"><strong>${p.pct}%</strong><span>${p.owned}/${p.total}</span></div><div class="mini-track"><span style="width:${p.pct}%"></span></div></button>`).join('');
     els.tabs.innerHTML=pg.map(([c,p])=>`<button type="button" role="tab" aria-selected="${active===c.id}" class="${active===c.id?'active':''}" data-cat="${c.id}">${esc(c.short)}<span class="tab-count">${p.entries.toLocaleString()}</span></button>`).join('');
@@ -702,8 +702,10 @@
     const gender=isGender(x.category),excluded=Boolean(state.excluded[x.id]),yes=isOwned(x);
     const ownClass=excluded?'excluded':yes?'owned':'';
     const release=releaseOf(x);
+    const unreleasedLabel=isShinyCostume(x.category)&&x.shinyAvailable===false?'色違い未解禁':
+      isCostume(x.category)&&x.releaseDate?'登場予定':'未実装';
     const badge=excluded?'<span class="card-badge excluded-badge">対象外</span>':
-      release==='unreleased'?'<span class="card-badge" title="Pokémon GO未実装">未実装</span>':
+      release==='unreleased'?'<span class="card-badge" title="'+esc(x.releaseDate?'登場予定 '+x.releaseDate:unreleasedLabel)+'">'+unreleasedLabel+'</span>':
       release==='unverified'?'<span class="card-badge unverified-badge" title="実装・色違いの解禁を確認中">確認中</span>':'';
     const unique=esc(x.id),n=String(x.dex).padStart(4,'0');
     const main=`<div class="card-header"><span class="card-no">No.${n}</span><button type="button" class="mini-menu" data-action="exclude" data-id="${unique}" aria-label="${esc(x.name)}を${excluded?'集計に含める':'集計対象外にする'}" title="集計対象から${excluded?'戻す':'除外'}">⋯</button></div>${badge}`;
@@ -717,7 +719,8 @@
       const male=Boolean(state.owned[x.id+':male']),female=Boolean(state.owned[x.id+':female']);
       return `<article class="pokemon-card ${ownClass}" data-id="${unique}">${main}<div class="card-main">${inner}</div><div class="costume-foot"><button type="button" class="mini-check ${male?'checked':''}" data-id="${unique}" data-action="male" aria-pressed="${male}">${male?'✓ ':''}${shiny?'★':''}♂ オス</button><button type="button" class="mini-check gender-female ${female?'checked':''}" data-id="${unique}" data-action="female" aria-pressed="${female}">${female?'✓ ':''}${shiny?'★':''}♀ メス</button></div></article>`;
     }
-    return `<article class="pokemon-card ${ownClass}" data-id="${unique}">${main}<button type="button" class="card-main" data-action="check" data-id="${unique}" aria-pressed="${yes}" aria-label="${esc(x.name)} ${esc(x.sub)} ${yes?'入手済み':'未入手'}">${inner}</button><div class="card-foot"><span class="captured-dot">${yes?'✓':'○'}</span>${yes?'入手済み':'未入手'}${isShinyCostume(x.category)?' ★色違い':''}</div></article>`;
+    const noShiny=isShinyCostume(x.category)&&x.shinyAvailable===false;
+    return `<article class="pokemon-card ${ownClass}" data-id="${unique}">${main}<button type="button" class="card-main" data-action="check" data-id="${unique}" aria-pressed="${yes}" aria-label="${esc(x.name)} ${esc(x.sub)} ${yes?'入手済み':'未入手'}" ${noShiny?'disabled title="色違い未解禁のためチェックできません"':''}>${inner}</button><div class="card-foot"><span class="captured-dot">${noShiny?'–':yes?'✓':'○'}</span>${noShiny?'色違い未解禁':yes?'入手済み':'未入手'}${isShinyCostume(x.category)?' ★色違い':''}</div></article>`;
   }
   function filteredRows(){
     const query=norm(els.search.value),status=els.ownership.value,selectedGen=els.generation.value,showUnreleased=els.showUnreleased.checked;
@@ -761,7 +764,9 @@
     renderRegionProgress();
     const cat=CATS.find(c=>c.id===active),r=filteredRows();
     $('current-title').textContent=cat.title;$('current-description').textContent=cat.note;
-    $('visible-count').textContent=`${r.length.toLocaleString()} 件`;
+    const costumeDetail=active==='costumepika'?' （登場済み101・予定3）':
+      active==='shinycostumepika'?' （解禁照合済み99・未確認1・未解禁1・予定3）':'';
+    $('visible-count').textContent=`${r.length.toLocaleString()} 件`+(els.search.value||els.generation.value!=='all'||els.ownership.value!=='all'?'':costumeDetail);
     const rows=r.slice(0,visibleLimit);els.cards.innerHTML=rows.map(makeCard).join('');
     $('empty').hidden=Boolean(r.length);els.loadMore.hidden=r.length<=visibleLimit;
     if(r.length>visibleLimit)els.loadMore.textContent=`さらに表示する （${visibleLimit.toLocaleString()} / ${r.length.toLocaleString()} 件）`;
@@ -770,10 +775,8 @@
   function changeCat(cat){if(!CATS.some(c=>c.id===cat))return;active=cat;visibleLimit=pageLimitFor(cat);els.formType.hidden=!(cat==='forms'||cat==='shinyforms');$('order-open').hidden=cat!=='costumepika'&&cat!=='shinycostumepika';render();}
   function toggleOwnership(id,kind){
     const x=data.find(r=>r.id===id);if(!x)return;
-    if(isDual(x.category)){
-      const allowed=isGender(x.category)?['male','female']:['normal','shiny'];
-      if(!allowed.includes(kind)||(kind==='shiny'&&x.shinyAvailable===false))return;
-    }
+    if(isDual(x.category)&&!['male','female'].includes(kind))return;
+    if(isShinyCostume(x.category)&&x.shinyAvailable===false)return;
     const k=isDual(x.category)?id+':'+kind:ownedKey(x);
     if(state.owned[k])delete state.owned[k];else state.owned[k]=true;
     persist();render();
@@ -784,7 +787,8 @@
     const verb=select?'すべて入手済みに登録':'すべて未入手に戻す';
     if(!window.confirm(cat.title+'：検索・絞り込みに一致する'+rows.length+'件を'+verb+'しますか？\n続きページも含みます。他のタブは変更しません。'))return;
     for(const x of rows){
-      const keys=isGender(x.category)?[x.id+':male',x.id+':female']:[ownedKey(x)];
+      const keys=isGender(x.category)?[x.id+':male',x.id+':female']:
+        isShinyCostume(x.category)&&x.shinyAvailable===false?[]:[ownedKey(x)];
       for(const k of keys){
         if(select)state.owned[k]=true;else delete state.owned[k];
       }
