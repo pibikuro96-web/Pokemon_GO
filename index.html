@@ -83,7 +83,7 @@
       <div class="cards" id="cards" aria-live="polite"></div>
       <div id="empty" class="empty" hidden><div>◌</div><strong>該当するポケモンがありません</strong><span>検索条件・フィルタを変更してください。</span></div>
       <button type="button" class="button load-more" id="load-more" hidden>さらに表示する</button>
-      <p class="helper" id="catalog-help">※ 達成率の分母は実装を確認できた項目のみです。「未実装・未確認も表示」は一覧の表示切り替えで、達成率の分母は変えません。未確認の衣装色違いはチェック状態を保存しますが、達成率に含めません。※ Googleドライブの図鑑スクリーンショットから画像を切り出しました。画像不足は未所持を意味せず、未実装・未解禁や撮影範囲外も含みます。「不足画像CSV」で図鑑番号別に確認できます。※ 「全て選択／全て解除」は現在のタブで検索・絞り込みに一致する全項目（続きを含む）に適用します。オス・メスはそれぞれ独立、衣装は通常色・色違いを独立管理します。フォルム・衣装にはゲームデータなどを基にした候補を含みます。実装状況や色違いの解禁状況は、個々に検証済みとは限りません。</p>
+      <p class="helper" id="catalog-help">※ 実装情報は2026年11月6日時点の確認結果です。公開データをもとにした判定のため、未確認のフォルム・衣装は引き続き調査対象です。※ 達成率の分母は実装を確認できた項目のみです。「未実装・未確認も表示」は一覧の表示切り替えで、達成率の分母は変えません。未確認の衣装色違いはチェック状態を保存しますが、達成率に含めません。※ Googleドライブの図鑑スクリーンショットから画像を切り出しました。画像不足は未所持を意味せず、未実装・未解禁や撮影範囲外も含みます。「不足画像CSV」で図鑑番号別に確認できます。※ 「全て選択／全て解除」は現在のタブで検索・絞り込みに一致する全項目（続きを含む）に適用します。オス・メスはそれぞれ独立、衣装は通常色・色違いを独立管理します。フォルム・衣装にはゲームデータなどを基にした候補を含みます。実装状況や色違いの解禁状況は、個々に検証済みとは限りません。</p>
     </main>
     <aside class="side-scroll" aria-label="ページ内スクロール"><button type="button" id="scroll-top" aria-label="ページの先頭へ" title="先頭へ">↑</button><button type="button" id="scroll-bottom" aria-label="ページの末尾へ" title="末尾へ">↓</button></aside>
     <footer><span>個人用・非公式ファンツール / データはこのブラウザ内に保存</span><span>Pokémonおよび関連名称・画像の権利は各権利者に帰属します。</span></footer>
@@ -96,7 +96,7 @@
 /* Pokémon GO personal collection tracker. No accounts or analytics. */
 (() => {
   'use strict';
-  const VERSION = '2.2.0';
+  const VERSION = '2.2.1';
   const STORE_KEY = 'pogo-personal-collection-v1';
   const CACHE_KEY = 'pogo-catalog-cache-v1';
   const PAGE_SIZE = 120;
@@ -660,7 +660,7 @@
     const inner=`${pictures}<span class="card-name">${esc(x.name)}</span><span class="card-sub">${esc(sub||' ')}</span>`;
     if(costume){
       const a=Boolean(state.owned[x.id+':normal']),b=Boolean(state.owned[x.id+':shiny']);
-      return `<article class="pokemon-card ${ownClass}" data-id="${unique}">${main}<div class="card-main" title="衣装：${esc(x.sub)}">${inner}</div><div class="costume-foot"><button type="button" class="mini-check ${a?'checked':''}" data-id="${unique}" data-action="normal" aria-pressed="${a}">${a?'✓ ':''}通常</button><button type="button" class="mini-check shiny ${b?'checked':''}" data-id="${unique}" data-action="shiny" aria-pressed="${b}" ${x.shinyAvailable===false?'disabled title="色違い対象外"':x.shinyReleaseStatus!=='released'?'title="この衣装の色違いは実装を未確認（チェック保存可・達成率対象外）"':''}>${b?'✓ ':''}★色違い${x.shinyReleaseStatus==='unverified'?' ?':''}</button></div></article>`;
+      return `<article class="pokemon-card ${ownClass}" data-id="${unique}">${main}<div class="card-main" title="衣装：${esc(x.sub)}">${inner}</div><div class="costume-foot"><button type="button" class="mini-check ${a?'checked':''}" data-id="${unique}" data-action="normal" aria-pressed="${a}">${a?'✓ ':''}通常</button><button type="button" class="mini-check shiny ${b?'checked':''}" data-id="${unique}" data-action="shiny" aria-pressed="${b}" ${x.shinyAvailable===false?'disabled title="色違い対象外"':x.shinyReleaseStatus!=='released'?'title="この衣装の色違いは実装を未確認（チェック保存可・達成率対象外）"':''}>${b?'✓ ':''}★色違い${x.shinyAvailable!==false&&x.shinyReleaseStatus!=='released'?' ?':''}</button></div></article>`;
     }
     if(gender){
       const male=Boolean(state.owned[x.id+':male']),female=Boolean(state.owned[x.id+':female']);
@@ -751,8 +751,8 @@
   }
   function csvValue(v){return '"'+String(v??'').replace(/"/g,'""')+'"';}
   function exportCSV(){
-    const header=['カテゴリ','図鑑番号','ポケモン名','フォルム・衣装','通常入手済み','衣装通常色','衣装色違い','オス','メス','集計対象外','候補・未実装'];
-    const rows=data.map(x=>[CATS.find(c=>c.id===x.category)?.title||x.category,x.dex,x.name,x.sub,isDual(x.category)?'':!!state.owned[x.id],isCostume(x.category)?!!state.owned[x.id+':normal']:'',isCostume(x.category)?!!state.owned[x.id+':shiny']:'',isGender(x.category)?!!state.owned[x.id+':male']:'',isGender(x.category)?!!state.owned[x.id+':female']:'',!!state.excluded[x.id],x.released===false?'未実装':x.uncertain?'候補':'']);
+    const header=['カテゴリ','図鑑番号','ポケモン名','フォルム・衣装','通常入手済み','衣装通常色','衣装色違い','オス','メス','集計対象外','実装状況','衣装色違いの解禁'];
+    const rows=data.map(x=>[CATS.find(c=>c.id===x.category)?.title||x.category,x.dex,x.name,x.sub,isDual(x.category)?'':!!state.owned[x.id],isCostume(x.category)?!!state.owned[x.id+':normal']:'',isCostume(x.category)?!!state.owned[x.id+':shiny']:'',isGender(x.category)?!!state.owned[x.id+':male']:'',isGender(x.category)?!!state.owned[x.id+':female']:'',!!state.excluded[x.id],releaseOf(x)==='released'?'実装確認済み':releaseOf(x)==='unreleased'?'未実装':'未確認',isCostume(x.category)?(x.shinyReleaseStatus==='released'?'実装確認済み':'未確認'):'']);
     download('\ufeff'+[header,...rows].map(r=>r.map(csvValue).join(',')).join('\r\n'),'pokemon-go-checker-'+new Date().toISOString().slice(0,10)+'.csv','text/csv;charset=utf-8');message('CSVを書き出しました');
   }
   function importJSON(file){
