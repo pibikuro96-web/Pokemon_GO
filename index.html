@@ -33,9 +33,21 @@
 .costume-images .sprite img{max-height:61px}
 @media(max-width:600px){.sprite-note{font-size:7px}}
 
-.atlas-sprite{display:block;flex:0 0 auto;width:104px;height:104px;margin:0 auto;background-repeat:no-repeat;background-size:1664px 6760px;image-rendering:auto;border-radius:7px}
-@media(max-width:480px){.atlas-sprite{transform:scale(.9);transform-origin:center}}
+.atlas-sprite{display:block;flex:0 1 auto;width:min(104px,100%);height:auto;aspect-ratio:1;margin:0 auto;background-repeat:no-repeat;background-size:1600% 6500%;image-rendering:auto;border-radius:7px}
+.sprite{min-width:0;overflow:hidden}
+/* Display the 16 × 65 atlas with fluid tile sizing. Never use transforms:
+   fixed 104px sprites would overlap neighbouring cards on small screens. */
 .workspace-actions a.button{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
+.region-progress{margin-top:18px;padding:12px 16px;border:1px solid #dce6f2;background:#f7faff;border-radius:12px;color:#344b68}
+.region-progress-main{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.region-progress-main>strong{font-size:13px;font-weight:850}
+.region-progress-main>span{display:flex;align-items:baseline;gap:10px}
+#region-progress-count{font-size:18px;font-weight:900;font-variant-numeric:tabular-nums}
+#region-progress-percent{font-size:12px;color:#5077a5;font-weight:800}
+.region-progress-track{height:6px;margin-top:9px;border-radius:6px;background:#e5edf6;overflow:hidden}
+.region-progress-track span{display:block;height:100%;width:0;background:#3e9ecf;border-radius:6px;transition:width .15s}
+#region-progress-help{display:block;margin-top:7px;font-size:10px;line-height:1.5;color:#6a7f99}
+@media(max-width:640px){.region-progress{padding:10px 12px}.region-progress-main>strong{font-size:12px}#region-progress-count{font-size:17px}}
 </style>
 </head>
 <body>
@@ -60,6 +72,11 @@
         <select id="ownership" aria-label="入手状況で絞り込み"><option value="all">入手状況：すべて</option><option value="missing">未入手のみ</option><option value="owned">入手済みのみ</option><option value="excluded">集計対象外のみ</option></select>
         <label class="switch-label"><input id="show-unreleased" type="checkbox" /><span>未実装・未確認も表示</span></label>
       </section>
+      <div class="region-progress" id="region-progress" role="status" aria-live="polite">
+        <div class="region-progress-main"><strong id="region-progress-label">全国の収集状況</strong><span><strong id="region-progress-count">0 / 0</strong><small id="region-progress-percent">0%</small></span></div>
+        <div class="region-progress-track" aria-hidden="true"><span id="region-progress-fill"></span></div>
+        <small id="region-progress-help">現在のカテゴリと地方の入手済み数／総数です。集計対象外は除きます。</small>
+      </div>
       <div class="list-info"><div><strong id="current-title">通常ポケモン</strong><span id="visible-count" class="muted">– 件</span></div><small id="current-description">画像をタップして入手状態を切り替えます。</small></div>
       <div class="cards" id="cards" aria-live="polite"></div>
       <div id="empty" class="empty" hidden><div>◌</div><strong>該当するポケモンがありません</strong><span>検索条件・フィルタを変更してください。</span></div>
@@ -77,7 +94,7 @@
 /* Pokémon GO personal collection tracker. No accounts or analytics. */
 (() => {
   'use strict';
-  const VERSION = '2.0.0';
+  const VERSION = '2.1.0';
   const STORE_KEY = 'pogo-personal-collection-v1';
   const CACHE_KEY = 'pogo-catalog-cache-v1';
   const PAGE_SIZE = 120;
@@ -597,10 +614,15 @@
     const atlas=shiny?LOCAL_ATLAS_INFO.shiny:LOCAL_ATLAS_INFO.normal;
     if(atlas!=='images/pogo-shiny-atlas.webp'&&atlas!=='images/pogo-normal-atlas.webp')return null;
     const tile=104,cols=16;
-    const dx=((x.dex-1)%cols)*tile,dy=Math.floor((x.dex-1)/cols)*tile;
+    const column=(x.dex-1)%cols,row=Math.floor((x.dex-1)/cols);
+    const columns=cols,rows=Math.ceil((Number(LOCAL_ATLAS_INFO.maxDex)||1025)/cols);
+    // CSS percentage positions are relative to (background size - element size).
+    // This keeps each tile aligned when its card becomes narrower on mobile.
+    const posX=(100*column/(columns-1)).toFixed(6);
+    const posY=(100*row/(rows-1)).toFixed(6);
     const label=esc(x.name+(shiny?' 色違い':'')+'：GoogleドライブのPokémon GO図鑑画像');
     return '<span class="atlas-sprite" role="img" aria-label="'+label+'" title="'+label+
-      '" style="background-image:url(\'./'+atlas+'\');background-position:-'+dx+'px -'+dy+'px"></span>';
+      '" style="background-image:url(\'./'+atlas+'\');background-position:'+posX+'% '+posY+'%"></span>';
   }
   function spriteTag(x,shiny){
     return localAtlasSprite(x,shiny)||
@@ -643,7 +665,37 @@
       return true;
     });
   }
+  const REGION_NAMES={all:'全国',1:'カントー',2:'ジョウト',3:'ホウエン',4:'シンオウ',5:'イッシュ',6:'カロス',7:'アローラ',8:'ガラル',9:'パルデア'};
+  function regionProgress(){
+    const area=els.generation.value||'all',current=active,form=els.formType.value;
+    let total=0,owned=0;
+    for(const x of rowsFor(current)){
+      if(area!=='all'&&String(x.gen)!==area)continue;
+      if((current==='forms'||current==='shinyforms')&&form!=='all'&&x.formKind!==form)continue;
+      if(state.excluded[x.id])continue;
+      if(x.released===false&&!els.showUnreleased.checked&&!isOwned(x))continue;
+      const parts=isGender(x.category)?['male','female']:isCostume(x.category)?
+        (x.shinyAvailable===false?['normal']:['normal','shiny']):[null];
+      for(const part of parts){
+        total++;
+        if(state.owned[part?x.id+':'+part:x.id])owned++;
+      }
+    }
+    return {area,label:REGION_NAMES[area]||'全国',total,owned,pct:total?Math.round(100*owned/total):0};
+  }
+  function renderRegionProgress(){
+    const p=regionProgress(),category=CATS.find(x=>x.id===active)?.short||active;
+    $('region-progress-label').textContent=p.label+'・'+category+'の入手状況';
+    $('region-progress-count').textContent=p.owned.toLocaleString()+' / '+p.total.toLocaleString();
+    $('region-progress-percent').textContent=p.pct+'%';
+    $('region-progress-fill').style.width=p.pct+'%';
+    $('region-progress-help').textContent='現在のカテゴリ・地方'+
+      ((active==='forms'||active==='shinyforms')&&els.formType.value!=='all'?'・フォルム種別':'')+
+      'で集計（集計対象外を除外）。'+
+      (isDual(active)?'衣装・性差は各種類を個別に数えます。':'入手状況・検索による絞り込みでは分母を変更しません。');
+  }
   function renderCards(){
+    renderRegionProgress();
     const cat=CATS.find(c=>c.id===active),r=filteredRows();
     $('current-title').textContent=cat.title;$('current-description').textContent=cat.note;
     $('visible-count').textContent=`${r.length.toLocaleString()} 件`;
