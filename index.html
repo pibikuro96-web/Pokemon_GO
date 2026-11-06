@@ -96,12 +96,12 @@
 /* Pokémon GO personal collection tracker. No accounts or analytics. */
 (() => {
   'use strict';
-  const VERSION = '2.4.0';
+  const VERSION = '2.5.0';
   const STORE_KEY = 'pogo-personal-collection-v1';
   const CACHE_KEY = 'pogo-catalog-cache-v1';
   const PAGE_SIZE = 120;
-  const alwaysVisible=cat=>['forms','shinyforms','gender','shinygender'].includes(cat);
-  const pageLimitFor=cat=>['forms','shinyforms'].includes(cat)?Number.MAX_SAFE_INTEGER:PAGE_SIZE;
+  const alwaysVisible=cat=>['forms','shinyforms','gender','shinygender','costumepika','shinycostumepika','costumeother','shinycostumeother'].includes(cat);
+  const pageLimitFor=cat=>alwaysVisible(cat)?Number.MAX_SAFE_INTEGER:PAGE_SIZE;
   const percent=(owned,total)=>total?Math.round(owned/total*10000)/100:0;
   const CATS = [
     {id:'normal', title:'通常ポケモン', short:'通常', subtitle:'全国図鑑', note:'全国図鑑番号ごとに独立してチェックします。'},
@@ -110,8 +110,10 @@
     {id:'shinyforms',title:'色違い・別フォルム',short:'色違いフォルム',subtitle:'姿・地域違い',note:'フォルムごとの色違いもそれぞれ独立しています。'},
     {id:'gender',title:'オス・メス差分',short:'オス・メス',subtitle:'性差のある姿',note:'本編で性別によって姿が違うポケモンを、オスとメス別々にチェックします。'},
     {id:'shinygender',title:'色違い・オス・メス差分',short:'色違いオス・メス',subtitle:'色違いの性差',note:'色違いのオスとメスを別々に管理します。通常色のオス・メスとは独立してチェックできます。'},
-    {id:'costumepika',title:'衣装・ピカチュウ',short:'衣装ピカチュウ',subtitle:'通常色＋色違い',note:'衣装ごとに「通常」「色違い」を別々にチェックします。'},
-    {id:'costumeother',title:'衣装・その他',short:'衣装その他',subtitle:'通常色＋色違い',note:'ピカチュウ以外のコスチュームを管理します。'},
+    {id:'costumepika',title:'衣装・ピカチュウ',short:'衣装ピカチュウ',subtitle:'通常色',note:'ピカチュウの衣装104候補を通常色で管理します。未確認も表示します。'},
+    {id:'shinycostumepika',title:'色違い・衣装ピカチュウ',short:'色違い衣装ピカチュウ',subtitle:'色違い衣装',note:'ピカチュウ衣装の色違いを独立して管理します。解禁未確認も表示します。'},
+    {id:'costumeother',title:'衣装・その他',short:'衣装その他',subtitle:'通常色',note:'ピカチュウ以外の衣装の通常色を管理します。'},
+    {id:'shinycostumeother',title:'色違い・衣装その他',short:'色違い衣装その他',subtitle:'色違い衣装',note:'ピカチュウ以外の衣装の色違いを独立して管理します。解禁未確認も表示します。'},
   ];
   const GENS=[0,151,251,386,493,649,721,809,905,1025];
   const BASE='https://cdn.jsdelivr.net/gh/WatWowMap/pogo-data-api@main/data/v1/';
@@ -132,23 +134,21 @@
   const norm=v=>String(v??'').normalize('NFKC').toLowerCase().replace(/[\s_・()（）-]/g,'');
   const gen=dex=>GENS.findIndex((limit,i)=>i>0 && dex<=limit) || 9;
   const key=x=>x.id;
-  const isCostume=cat=>cat==='costumepika'||cat==='costumeother';
+  const isBaseCostume=cat=>cat==='costumepika'||cat==='costumeother';
+  const isShinyCostume=cat=>cat==='shinycostumepika'||cat==='shinycostumeother';
+  const isCostume=cat=>isBaseCostume(cat)||isShinyCostume(cat);
   const isGender=cat=>cat==='gender'||cat==='shinygender';
-  const isDual=cat=>isCostume(cat)||isGender(cat);
-  const isOwned=x=>isGender(x.category)?Boolean(state.owned[x.id+':male']||state.owned[x.id+':female']):isCostume(x.category)?Boolean(state.owned[x.id+':normal']||state.owned[x.id+':shiny']):Boolean(state.owned[x.id]);
+  const isDual=cat=>isGender(cat);
+  const ownedKey=x=>isCostume(x.category)?(x.ownedKey||x.id+(isShinyCostume(x.category)?':shiny':':normal')):x.id;
+  const isOwned=x=>isGender(x.category)?Boolean(state.owned[x.id+':male']||state.owned[x.id+':female']):Boolean(state.owned[ownedKey(x)]);
   const releaseOf=x=>x.releaseStatus||(x.released===false?'unverified':'released');
-  const eligibility=x=>!state.excluded[x.id] && releaseOf(x)==='released';
+  const eligibility=x=>!state.excluded[x.id]&&releaseOf(x)==='released';
   // Hidden, unverified entries do not count. Showing them opts into their progress slots.
   function countedSlots(x){
-    const includeUnconfirmed=Boolean(els.showUnreleased.checked);
-    if(state.excluded[x.id]||(!includeUnconfirmed&&releaseOf(x)!=='released'))return [];
+    if(state.excluded[x.id]||(!els.showUnreleased.checked&&releaseOf(x)!=='released'))return [];
     if(isGender(x.category))return [x.id+':male',x.id+':female'];
-    if(isCostume(x.category)){
-      const keys=[x.id+':normal'];
-      if(x.shinyAvailable!==false&&(includeUnconfirmed||x.shinyReleaseStatus==='released'))keys.push(x.id+':shiny');
-      return keys;
-    }
-    return [x.id];
+    if(isShinyCostume(x.category)&&x.shinyAvailable===false)return [];
+    return [ownedKey(x)];
   }
   let state=readStorage();
   let active='normal', visibleLimit=PAGE_SIZE, data=[], sourceStatus='loading', toastTimer=0;
@@ -160,8 +160,8 @@
 
 
   function readStorage(){
-    try{const d=JSON.parse(localStorage.getItem(STORE_KEY)||'{}');return {owned:(d.owned&&typeof d.owned==='object')?d.owned:{}, excluded:(d.excluded&&typeof d.excluded==='object')?d.excluded:{}, custom:Array.isArray(d.custom)?d.custom:[], updated:d.updated||null, pikachuOrder:Array.isArray(d.pikachuOrder)?d.pikachuOrder.filter(x=>typeof x==='string').slice(0,500):[]};}
-    catch{return {owned:{},excluded:{},custom:[],updated:null};}
+    try{const d=JSON.parse(localStorage.getItem(STORE_KEY)||'{}');return {owned:(d.owned&&typeof d.owned==='object')?d.owned:{}, excluded:(d.excluded&&typeof d.excluded==='object')?d.excluded:{}, custom:Array.isArray(d.custom)?d.custom:[], updated:d.updated||null, pikachuOrder:Array.isArray(d.pikachuOrder)?d.pikachuOrder.filter(x=>typeof x==='string').slice(0,500):[],migratedCostumeExclusions:Boolean(d.migratedCostumeExclusions)};}
+    catch{return {owned:{},excluded:{},custom:[],updated:null,pikachuOrder:[],migratedCostumeExclusions:false};}
   }
   function persist(){
     state.updated=new Date().toISOString();
@@ -192,6 +192,7 @@
       const dex=Number(num);all.push(makeEntry('normal',dex,name,'',`normal:${dex}`,{released:true}));all.push(makeEntry('shiny',dex,name,'',`shiny:${dex}`,{released:true}));
     }
     all.push(makeEntry('gender',25,'ピカチュウ','性別による姿の違い','gender:25:base',{maleFile:goFile(25,''),femaleFile:goFile(25,'g2')}));
+    all.push(makeEntry('shinygender',25,'ピカチュウ','性別による姿の違い','shinygender:25:base',{maleFile:goFile(25,''),femaleFile:goFile(25,'g2')}));
     for(const [num,labels] of Object.entries(FALLBACK_FORM_SPEC))for(const label of labels){
       const dex=Number(num),id=`manualseed:${dex}:${label}`;
       all.push(makeEntry('forms',dex,FALLBACK_SPECIES[dex],label,`form:${id}`,{released:true}));
@@ -298,7 +299,7 @@
       const uri=String(entry.artBase||'')+entry.artFile.replace('.s.icon.png',shiny?'.s.icon.png':'.icon.png');
       if(/^https:\/\/cdn\.jsdelivr\.net\/gh\/PokeMiners\//.test(uri))add(uri,'');
     }
-    if(cat==='gender')return out;
+    if(isGender(cat))return out;
     if(!standard&&!costume){
       // Scatterbug and Spewpa have the same visible appearance across habitat patterns.
       if((dex===664||dex===665)&&/^S(?:CATTERBUG|PEWPA)_/.test(entry.formProto||'')){
@@ -484,8 +485,8 @@
   function sortEntries(a,b){
     if(a.dex!==b.dex)return a.dex-b.dex;
     if(a.category!==b.category)return CATS.findIndex(c=>c.id===a.category)-CATS.findIndex(c=>c.id===b.category);
-    if(a.category==='costumepika'){
-      const position=x=>state.pikachuOrder?.indexOf(x.id)??-1;
+    if(a.category==='costumepika'||a.category==='shinycostumepika'){
+      const position=x=>state.pikachuOrder?.indexOf(x.baseCostumeId||x.id)??-1;
       const pa=position(a),pb=position(b);
       if(pa!==pb){if(pa===-1)return 1;if(pb===-1)return -1;return pa-pb;}
       return (a.orderRank??9999)-(b.orderRank??9999)||a.sub.localeCompare(b.sub,'ja');
@@ -500,7 +501,7 @@
   function migrateLegacyFormChecks(rows){
     let changed=false;
     for(const row of rows){
-      if(!isCostume(row.category))continue;
+      if(!isBaseCostume(row.category))continue;
       for(const stem of row.legacyFormKeys||[]){
         const legacyNormal='form:'+stem,legacyShiny='shinyform:'+stem;
         if(state.owned[legacyNormal]){state.owned[row.id+':normal']=true;changed=true;}
@@ -514,6 +515,34 @@
     }
     if(changed)persist();
     return changed;
+  }
+  function migrateFormerFormChecks(rows){
+    let changed=false;
+    for(const x of rows.filter(r=>r.category==='normal'||r.category==='shiny'))
+      for(const id of x.formLegacyIds||[]){
+        if(state.owned[id]){state.owned[x.id]=true;delete state.owned[id];changed=true;}
+        if(state.excluded[id]){state.excluded[x.id]=true;delete state.excluded[id];changed=true;}
+      }
+    if(changed)persist();
+  }
+  function migrateCostumeExclusions(rows){
+    if(state.migratedCostumeExclusions)return;
+    for(const x of rows.filter(x=>isShinyCostume(x.category)))
+      if(state.excluded[x.baseCostumeId])state.excluded[x.id]=true;
+    state.migratedCostumeExclusions=true;persist();
+  }
+  function ensureShinyCostumes(rows){
+    const ids=new Set(rows.map(x=>x.id));
+    for(const x of [...rows].filter(x=>isBaseCostume(x.category))){
+      x.ownedKey=x.id+':normal';
+      const id='shinycostume:'+x.id;
+      if(ids.has(id))continue;
+      const cat=x.category==='costumepika'?'shinycostumepika':'shinycostumeother';
+      const clone={...x,id,category:cat,baseCostumeId:x.id,ownedKey:x.id+':shiny',
+        releaseStatus:x.shinyAvailable===false||x.releaseStatus==='unreleased'?'unreleased':
+          x.shinyReleaseStatus==='released'&&x.releaseStatus!=='unverified'?'released':'unverified'};
+      delete clone.legacyFormKeys;rows.push(clone);ids.add(id);
+    }
   }
   function auditCatalog(rows){
     const ids=new Set(),imageKeys=new Map(),unique=[];
@@ -574,9 +603,12 @@
       els.status.textContent='ローカル図鑑を読み込めませんでした。サンプルのみ表示しています。ネット接続を確認してください。';
     }else{
       addCustomToCatalog(rows);
+      ensureShinyCostumes(rows);
       const unique=auditCatalog(rows);
       migrateGenderChecks(unique);
       migrateLegacyFormChecks(unique);
+      migrateFormerFormChecks(unique);
+      migrateCostumeExclusions(unique);
       data=unique.sort(sortEntries);
       sourceStatus=LOCAL_ATLAS_INFO?'ready':'partial';
       if(LOCAL_ATLAS_INFO&&GO_FILES.size){
