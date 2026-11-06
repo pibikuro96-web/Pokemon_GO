@@ -67,7 +67,7 @@
     <div class="notice" id="data-status" role="status"><span class="pulse"></span> ポケモンのデータを読み込んでいます…</div>
     <section class="summary-grid" id="summary-grid" aria-label="カテゴリ別の達成状況"></section>
     <main class="workspace">
-      <div class="workspace-top"><div><div class="eyebrow dark">YOUR COLLECTION</div><h2>コンプチェッカー</h2></div><div class="workspace-actions"><button type="button" class="button secondary" id="order-open" hidden>ピカチュウ並び順</button><button type="button" class="button secondary" id="bulk-select" title="現在の絞り込みに一致する全項目を入手済みにする">✓ 全て選択</button><button type="button" class="button secondary" id="bulk-clear" title="現在の絞り込みに一致する全項目のチェックを解除">全て解除</button><a class="button secondary" href="./missing-pokemon.csv" download="pokemon-go-missing-images.csv" title="Googleドライブにある図鑑画像で未確認の230匹の一覧">不足画像CSV（230種）</a><a class="button secondary" href="./pika-costume-audit.csv" download="pika-costume-audit.csv" title="ピカチュウ衣装104種類の通常色・色違いの確認状況">衣装104件の精査CSV</a><button type="button" class="button secondary" id="add-open">＋ 項目を追加</button></div></div>
+      <div class="workspace-top"><div><div class="eyebrow dark">YOUR COLLECTION</div><h2>コンプチェッカー</h2></div><div class="workspace-actions"><button type="button" class="button secondary" id="order-open" hidden>ピカチュウ順序変更</button><button type="button" class="button secondary" id="bulk-select" title="現在の絞り込みに一致する全項目を入手済みにする">✓ 全て選択</button><button type="button" class="button secondary" id="bulk-clear" title="現在の絞り込みに一致する全項目のチェックを解除">全て解除</button><a class="button secondary" href="./missing-pokemon.csv" download="pokemon-go-missing-images.csv" title="Googleドライブにある図鑑画像で未確認の230匹の一覧">不足画像CSV（230種）</a><a class="button secondary" href="./pika-costume-audit.csv" download="pika-costume-audit.csv" title="初実装順にピカチュウ衣装104種類と色違いを確認">衣装104件の精査CSV</a><a class="button secondary" href="./form-audit.csv" download="form-audit.csv" title="125種族・357種類の別フォルムの通常色と色違いを照合">フォルム357件の精査CSV</a><button type="button" class="button secondary" id="add-open">＋ 項目を追加</button></div></div>
       <nav class="tabs" id="category-tabs" aria-label="カテゴリ切り替え"></nav>
       <section class="controls" aria-label="表示条件">
         <div class="search-wrap"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="ポケモン名・図鑑番号・フォルム名で検索" autocomplete="off" aria-label="検索" /></div>
@@ -98,7 +98,7 @@
 /* Pokémon GO personal collection tracker. No accounts or analytics. */
 (() => {
   'use strict';
-  const VERSION = '2.8.0';
+  const VERSION = '2.8.1';
   const STORE_KEY = 'pogo-personal-collection-v1';
   const CACHE_KEY = 'pogo-catalog-cache-v1';
   const PAGE_SIZE = 120;
@@ -733,7 +733,7 @@
       if(!showUnreleased&&!alwaysVisible(active)&&releaseOf(x)!=='released')return false;
       if(selectedGen!=='all'&&String(x.gen)!==selectedGen)return false;
        if((active==='forms'||active==='shinyforms')&&els.formType.value!=='all'&&x.formKind!==els.formType.value)return false;
-      if(query&&!norm(`${x.dex} ${String(x.dex).padStart(4,'0')} ${x.name} ${x.sub} ${x.english||''} ${x.formProto||''}`).includes(query))return false;
+      if(query&&!norm(`${x.dex} ${String(x.dex).padStart(4,'0')} ${x.name} ${x.sub} ${x.english||''} ${x.formProto||''} ${x.firstReleaseYear||''}`).includes(query))return false;
       if(status==='excluded')return Boolean(state.excluded[x.id]);
       if(state.excluded[x.id])return status==='all';
       if(status==='owned'&&!isOwned(x))return false;
