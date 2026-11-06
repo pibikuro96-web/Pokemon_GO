@@ -98,7 +98,7 @@
 /* Pokémon GO personal collection tracker. No accounts or analytics. */
 (() => {
   'use strict';
-  const VERSION = '2.9.0';
+  const VERSION = '2.9.1';
   const STORE_KEY = 'pogo-personal-collection-v1';
   const CACHE_KEY = 'pogo-catalog-cache-v1';
   const PAGE_SIZE = 120;
@@ -770,7 +770,7 @@
     const cat=CATS.find(c=>c.id===active),r=filteredRows();
     $('current-title').textContent=cat.title;$('current-description').textContent=cat.note;
     const costumeDetail=active==='costumepika'?' （登場済み101・予定3）':
-      active==='shinycostumepika'?' （解禁照合済み99・未確認1・未解禁1・予定3）':'';
+      active==='shinycostumepika'?' （解禁照合済み99・未解禁2・予定3）':'';
     $('visible-count').textContent=`${r.length.toLocaleString()} 件`+(els.search.value||els.generation.value!=='all'||els.ownership.value!=='all'?'':costumeDetail);
     const rows=r.slice(0,visibleLimit);els.cards.innerHTML=rows.map(makeCard).join('');
     $('empty').hidden=Boolean(r.length);els.loadMore.hidden=r.length<=visibleLimit;
