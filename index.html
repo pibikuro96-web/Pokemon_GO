@@ -48,6 +48,8 @@
 .region-progress-track span{display:block;height:100%;width:0;background:#3e9ecf;border-radius:6px;transition:width .15s}
 #region-progress-help{display:block;margin-top:7px;font-size:10px;line-height:1.5;color:#6a7f99}
 @media(max-width:640px){.region-progress{padding:10px 12px}.region-progress-main>strong{font-size:12px}#region-progress-count{font-size:17px}}
+.card-badge.unverified-badge{color:#667c92}
+@media(max-width:640px){.unverified-badge{font-size:8px}}
 </style>
 </head>
 <body>
@@ -58,7 +60,7 @@
     </header>
     <section class="hero">
       <div class="hero-copy"><div class="eyebrow">PERSONAL POKÉDEX</div><h1>集めたポケモンを、<br><span>自分だけの図鑑に。</span></h1><p>一度でも入手したらチェック。通常・別フォルム・色違い・コスチュームはすべて独立管理します。</p></div>
-      <div class="overall"><div class="ring" id="overall-ring"><div><strong id="overall-pct">–%</strong><span>総合達成率</span></div></div><div class="overall-caption"><strong id="overall-numbers">読み込み中</strong><span>収録データに基づく参考値</span></div></div>
+      <div class="overall"><div class="ring" id="overall-ring"><div><strong id="overall-pct">–%</strong><span>総合達成率</span></div></div><div class="overall-caption"><strong id="overall-numbers">読み込み中</strong><span>実装確認済みのみ集計（2026/11/06）</span></div></div>
     </section>
     <div class="notice" id="data-status" role="status"><span class="pulse"></span> ポケモンのデータを読み込んでいます…</div>
     <section class="summary-grid" id="summary-grid" aria-label="カテゴリ別の達成状況"></section>
@@ -81,7 +83,7 @@
       <div class="cards" id="cards" aria-live="polite"></div>
       <div id="empty" class="empty" hidden><div>◌</div><strong>該当するポケモンがありません</strong><span>検索条件・フィルタを変更してください。</span></div>
       <button type="button" class="button load-more" id="load-more" hidden>さらに表示する</button>
-      <p class="helper" id="catalog-help">※ Googleドライブの図鑑スクリーンショットから画像を切り出しました。画像不足は未所持を意味せず、未実装・未解禁や撮影範囲外も含みます。「不足画像CSV」で図鑑番号別に確認できます。※ 「全て選択／全て解除」は現在のタブで検索・絞り込みに一致する全項目（続きを含む）に適用します。オス・メスはそれぞれ独立、衣装は通常色・色違いを独立管理します。フォルム・衣装にはゲームデータなどを基にした候補を含みます。実装状況や色違いの解禁状況は、個々に検証済みとは限りません。</p>
+      <p class="helper" id="catalog-help">※ 達成率の分母は実装を確認できた項目のみです。「未実装・未確認も表示」は一覧の表示切り替えで、達成率の分母は変えません。未確認の衣装色違いはチェック状態を保存しますが、達成率に含めません。※ Googleドライブの図鑑スクリーンショットから画像を切り出しました。画像不足は未所持を意味せず、未実装・未解禁や撮影範囲外も含みます。「不足画像CSV」で図鑑番号別に確認できます。※ 「全て選択／全て解除」は現在のタブで検索・絞り込みに一致する全項目（続きを含む）に適用します。オス・メスはそれぞれ独立、衣装は通常色・色違いを独立管理します。フォルム・衣装にはゲームデータなどを基にした候補を含みます。実装状況や色違いの解禁状況は、個々に検証済みとは限りません。</p>
     </main>
     <aside class="side-scroll" aria-label="ページ内スクロール"><button type="button" id="scroll-top" aria-label="ページの先頭へ" title="先頭へ">↑</button><button type="button" id="scroll-bottom" aria-label="ページの末尾へ" title="末尾へ">↓</button></aside>
     <footer><span>個人用・非公式ファンツール / データはこのブラウザ内に保存</span><span>Pokémonおよび関連名称・画像の権利は各権利者に帰属します。</span></footer>
@@ -94,7 +96,7 @@
 /* Pokémon GO personal collection tracker. No accounts or analytics. */
 (() => {
   'use strict';
-  const VERSION = '2.1.0';
+  const VERSION = '2.2.0';
   const STORE_KEY = 'pogo-personal-collection-v1';
   const CACHE_KEY = 'pogo-catalog-cache-v1';
   const PAGE_SIZE = 120;
@@ -130,7 +132,20 @@
   const isGender=cat=>cat==='gender';
   const isDual=cat=>isCostume(cat)||isGender(cat);
   const isOwned=x=>isGender(x.category)?Boolean(state.owned[x.id+':male']||state.owned[x.id+':female']):isCostume(x.category)?Boolean(state.owned[x.id+':normal']||state.owned[x.id+':shiny']):Boolean(state.owned[x.id]);
-  const eligibility=x=>!state.excluded[x.id] && (x.released!==false || isOwned(x));
+  const releaseOf=x=>x.releaseStatus||(x.released===false?'unverified':'released');
+  const eligibility=x=>!state.excluded[x.id] && releaseOf(x)==='released';
+  // Only confirmed, collectible variations count toward the percentage.
+  // Unknown and unreleased checks remain stored, without inflating the top metric.
+  function countedSlots(x){
+    if(!eligibility(x))return [];
+    if(isGender(x.category))return [x.id+':male',x.id+':female'];
+    if(isCostume(x.category)){
+      const keys=[x.id+':normal'];
+      if(x.shinyAvailable!==false&&x.shinyReleaseStatus==='released')keys.push(x.id+':shiny');
+      return keys;
+    }
+    return [x.id];
+  }
   let state=readStorage();
   let active='normal', visibleLimit=PAGE_SIZE, data=[], sourceStatus='loading', toastTimer=0;
   const sources={};
@@ -556,7 +571,7 @@
       sourceStatus=LOCAL_ATLAS_INFO?'ready':'partial';
       if(LOCAL_ATLAS_INFO&&GO_FILES.size){
         els.status.className='notice success';
-        els.status.textContent='図鑑データと撮影画像をリポジトリ内から読み込みました。入手チェックはこのブラウザ内に保存されます。';
+        els.status.textContent='図鑑・画像・2026年11月6日時点の実装状況を読み込みました。達成率は実装確認済みのみで計算します。';
       }else{
         els.status.className='notice warn';
         els.status.textContent='図鑑は読み込めましたが、画像索引の一部を取得できません。外部の参考画像が表示される場合があります。';
@@ -569,14 +584,13 @@
   function progress(cat){
     const entries=rowsFor(cat);
     let total=0,owned=0;
-    for(const x of entries){if(!eligibility(x))continue;
-      const costume=isCostume(cat),gender=isGender(cat);
-      total+=costume?(x.shinyAvailable===false?1:2):gender?2:1;
-      if(costume){if(state.owned[x.id+':normal'])owned++;if(x.shinyAvailable!==false&&state.owned[x.id+':shiny'])owned++;}
-      else if(gender){if(state.owned[x.id+':male'])owned++;if(state.owned[x.id+':female'])owned++;}
-      else if(state.owned[x.id])owned++;
+    for(const x of entries){
+      const keys=countedSlots(x);
+      total+=keys.length;
+      for(const k of keys)if(state.owned[k])owned++;
     }
-    return {total,owned,pct:total?Math.round(owned/total*100):0,entries:entries.length};
+    const count=els.showUnreleased.checked?entries.length:entries.filter(eligibility).length;
+    return {total,owned,pct:total?Math.round(owned/total*100):0,entries:count};
   }
   function renderSummary(){
     const pg=CATS.map(c=>[c,progress(c.id)]);
@@ -631,7 +645,10 @@
   function makeCard(x){
     const costume=isCostume(x.category),gender=isGender(x.category),excluded=Boolean(state.excluded[x.id]),yes=isOwned(x);
     const ownClass=excluded?'excluded':yes?'owned':'';
-    const badge=excluded?'<span class="card-badge excluded-badge">対象外</span>':x.released===false?'<span class="card-badge">未実装</span>':'';
+    const release=releaseOf(x);
+    const badge=excluded?'<span class="card-badge excluded-badge">対象外</span>':
+      release==='unreleased'?'<span class="card-badge" title="Pokémon GO未実装">未実装</span>':
+      release==='unverified'?'<span class="card-badge unverified-badge" title="この姿の実装が確認できていません">確認中</span>':'';
     const unique=esc(x.id),n=String(x.dex).padStart(4,'0');
     const main=`<div class="card-header"><span class="card-no">No.${n}</span><button type="button" class="mini-menu" data-action="exclude" data-id="${unique}" aria-label="${esc(x.name)}を${excluded?'集計に含める':'集計対象外にする'}" title="集計対象から${excluded?'戻す':'除外'}">⋯</button></div>${badge}`;
     const shiny=x.category==='shiny'||x.category==='shinyforms';
@@ -643,7 +660,7 @@
     const inner=`${pictures}<span class="card-name">${esc(x.name)}</span><span class="card-sub">${esc(sub||' ')}</span>`;
     if(costume){
       const a=Boolean(state.owned[x.id+':normal']),b=Boolean(state.owned[x.id+':shiny']);
-      return `<article class="pokemon-card ${ownClass}" data-id="${unique}">${main}<div class="card-main" title="衣装：${esc(x.sub)}">${inner}</div><div class="costume-foot"><button type="button" class="mini-check ${a?'checked':''}" data-id="${unique}" data-action="normal" aria-pressed="${a}">${a?'✓ ':''}通常</button><button type="button" class="mini-check shiny ${b?'checked':''}" data-id="${unique}" data-action="shiny" aria-pressed="${b}" ${x.shinyAvailable===false?'disabled title="色違い未確認"':''}>${b?'✓ ':''}★色違い</button></div></article>`;
+      return `<article class="pokemon-card ${ownClass}" data-id="${unique}">${main}<div class="card-main" title="衣装：${esc(x.sub)}">${inner}</div><div class="costume-foot"><button type="button" class="mini-check ${a?'checked':''}" data-id="${unique}" data-action="normal" aria-pressed="${a}">${a?'✓ ':''}通常</button><button type="button" class="mini-check shiny ${b?'checked':''}" data-id="${unique}" data-action="shiny" aria-pressed="${b}" ${x.shinyAvailable===false?'disabled title="色違い対象外"':x.shinyReleaseStatus!=='released'?'title="この衣装の色違いは実装を未確認（チェック保存可・達成率対象外）"':''}>${b?'✓ ':''}★色違い${x.shinyReleaseStatus==='unverified'?' ?':''}</button></div></article>`;
     }
     if(gender){
       const male=Boolean(state.owned[x.id+':male']),female=Boolean(state.owned[x.id+':female']);
@@ -654,7 +671,7 @@
   function filteredRows(){
     const query=norm(els.search.value),status=els.ownership.value,selectedGen=els.generation.value,showUnreleased=els.showUnreleased.checked;
     return rowsFor(active).filter(x=>{
-      if(!showUnreleased&&x.released===false&&!isOwned(x))return false;
+      if(!showUnreleased&&releaseOf(x)!=='released')return false;
       if(selectedGen!=='all'&&String(x.gen)!==selectedGen)return false;
        if((active==='forms'||active==='shinyforms')&&els.formType.value!=='all'&&x.formKind!==els.formType.value)return false;
       if(query&&!norm(`${x.dex} ${String(x.dex).padStart(4,'0')} ${x.name} ${x.sub} ${x.english||''} ${x.formProto||''}`).includes(query))return false;
@@ -672,14 +689,9 @@
     for(const x of rowsFor(current)){
       if(area!=='all'&&String(x.gen)!==area)continue;
       if((current==='forms'||current==='shinyforms')&&form!=='all'&&x.formKind!==form)continue;
-      if(state.excluded[x.id])continue;
-      if(x.released===false&&!els.showUnreleased.checked&&!isOwned(x))continue;
-      const parts=isGender(x.category)?['male','female']:isCostume(x.category)?
-        (x.shinyAvailable===false?['normal']:['normal','shiny']):[null];
-      for(const part of parts){
-        total++;
-        if(state.owned[part?x.id+':'+part:x.id])owned++;
-      }
+      const keys=countedSlots(x);
+      total+=keys.length;
+      for(const k of keys)if(state.owned[k])owned++;
     }
     return {area,label:REGION_NAMES[area]||'全国',total,owned,pct:total?Math.round(100*owned/total):0};
   }
@@ -691,8 +703,8 @@
     $('region-progress-fill').style.width=p.pct+'%';
     $('region-progress-help').textContent='現在のカテゴリ・地方'+
       ((active==='forms'||active==='shinyforms')&&els.formType.value!=='all'?'・フォルム種別':'')+
-      'で集計（集計対象外を除外）。'+
-      (isDual(active)?'衣装・性差は各種類を個別に数えます。':'入手状況・検索による絞り込みでは分母を変更しません。');
+      'で集計（実装確認済み・集計対象外を除外）。'+
+      (isDual(active)?'衣装・性差は各種類を個別に数えます。':'検索・入手状況・未実装表示の切り替えでは分母を変更しません。');
   }
   function renderCards(){
     renderRegionProgress();
