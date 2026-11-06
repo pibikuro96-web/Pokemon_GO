@@ -32,6 +32,9 @@
 .costume-images .sprite{height:auto;min-height:90px;justify-content:flex-start}
 .costume-images .sprite img{max-height:61px}
 @media(max-width:600px){.sprite-note{font-size:7px}}
+
+.atlas-sprite{display:block;flex:0 0 auto;width:104px;height:104px;margin:0 auto;background-repeat:no-repeat;background-size:1664px 6760px;image-rendering:auto;border-radius:7px}
+@media(max-width:480px){.atlas-sprite{transform:scale(.9);transform-origin:center}}
 </style>
 </head>
 <body>
@@ -73,7 +76,7 @@
 /* Pokémon GO personal collection tracker. No accounts or analytics. */
 (() => {
   'use strict';
-  const VERSION = '1.4.0';
+  const VERSION = '2.0.0';
   const STORE_KEY = 'pogo-personal-collection-v1';
   const CACHE_KEY = 'pogo-catalog-cache-v1';
   const PAGE_SIZE = 120;
@@ -93,6 +96,8 @@
   const HAIL_RAW='https://raw.githubusercontent.com/Hailey-Ross/hailsDotGO/main/internal/costumes/';
   const POGO='https://pogoapi.net/api/v1/';
   const GO_ASSET_MANIFEST='./assets-index.json';
+  const LOCAL_CATALOG='./catalog-data.json';
+  const LOCAL_ATLAS='./atlas-index.json';
   const GENDER_DATA='./gender-data.json';
   const SPRITE='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/';
   const FALLBACK_SPECIES={1:'フシギダネ',4:'ヒトカゲ',7:'ゼニガメ',25:'ピカチュウ',26:'ライチュウ',37:'ロコン',38:'キュウコン',52:'ニャース',58:'ガーディ',100:'ビリリダマ',133:'イーブイ',201:'アンノーン',327:'パッチール',351:'ポワルン',386:'デオキシス',479:'ロトム',487:'ギラティナ',492:'シェイミ',550:'バスラオ',585:'シキジカ',586:'メブキジカ',641:'トルネロス',642:'ボルトロス',645:'ランドロス',666:'ビビヨン',678:'ニャオニクス',720:'フーパ',741:'オドリドリ',746:'ヨワシ',774:'メテノ',800:'ネクロズマ',849:'ストリンダー',869:'マホイップ',888:'ザシアン',889:'ザマゼンタ',901:'ガチグマ',978:'シャリタツ',999:'コレクレー'};
@@ -112,6 +117,7 @@
   let active='normal', visibleLimit=PAGE_SIZE, data=[], sourceStatus='loading', toastTimer=0;
   const sources={};
   let GO_FILES=new Set(),GO_BASE='',GO_RAW_BASE='';
+  let LOCAL_ATLAS_INFO=null;
   let HOME_FILES=new Set(),HOME_SHINY=new Set(),HOME_FEMALE=new Set();
   let HOME_BASE='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/';
 
@@ -498,34 +504,47 @@
     }
   }
   async function loadData(force=false){
-    sourceStatus='loading'; els.status.className='notice';els.status.innerHTML='<span class="pulse"></span>最新データを読み込んでいます…';
-    const tasks={assetIndex:fetchJSON([GO_ASSET_MANIFEST]),gender:fetchJSON([GENDER_DATA]),pokemon:fetchJSON(urlW('pokemon.json')), forms:fetchJSON(urlW('forms.json')), jpPokemon:fetchJSON(urlW('translations/ja/pokemon.json')),jpForms:fetchJSON(urlW('translations/ja/forms.json')), costumes:fetchJSON(urlH('catalog.json')),labels:fetchJSON(urlH('labels.json')),released:fetchJSON([POGO+'released_pokemon.json']),shiny:fetchJSON([POGO+'shiny_pokemon.json']),pokenames:fetchJSON([POGO+'pokemon_names.json']),pokeCSV:fetchText(['https://cdn.jsdelivr.net/gh/PokeAPI/pokeapi@master/data/v2/csv/pokemon.csv','https://raw.githubusercontent.com/PokeAPI/pokeapi/master/data/v2/csv/pokemon.csv'])};
-    const names=Object.keys(tasks), values=await Promise.allSettled(Object.values(tasks));
-    const failed=[];for(let i=0;i<names.length;i++){sources[names[i]]=values[i].status==='fulfilled'?values[i].value:null;if(!sources[names[i]])failed.push(names[i]);}
-    GO_FILES=new Set(Array.isArray(sources.assetIndex?.available)?sources.assetIndex.available:[]);
-    GO_BASE=typeof sources.assetIndex?.base==='string'&&sources.assetIndex.base.startsWith('https://cdn.jsdelivr.net/gh/PokeMiners/')?sources.assetIndex.base:'';
-    const revision=String(sources.assetIndex?.commit||'');
-    GO_RAW_BASE=/^[a-f0-9]{40}$/.test(revision)
-      ?'https://raw.githubusercontent.com/PokeMiners/pogo_assets/'+revision+'/Images/Pokemon%20-%20256x256/Addressable%20Assets/':'';
-    const home=sources.assetIndex?.home||{};
+    sourceStatus='loading';
+    els.status.className='notice';
+    els.status.innerHTML='<span class="pulse"></span>リポジトリ内の図鑑・画像索引を読み込んでいます…';
+    const settled=await Promise.allSettled([
+      fetchJSON([LOCAL_CATALOG]),fetchJSON([GO_ASSET_MANIFEST]),fetchJSON([LOCAL_ATLAS])
+    ]);
+    const pack=settled[0].status==='fulfilled'?settled[0].value:null;
+    const spriteInfo=settled[1].status==='fulfilled'?settled[1].value:{};
+    LOCAL_ATLAS_INFO=settled[2].status==='fulfilled'?settled[2].value:null;
+    GO_FILES=new Set(Array.isArray(spriteInfo.available)?spriteInfo.available:[]);
+    GO_BASE=typeof spriteInfo.base==='string'&&spriteInfo.base.startsWith('https://cdn.jsdelivr.net/gh/PokeMiners/')?spriteInfo.base:'';
+    const revision=String(spriteInfo.commit||'');
+    GO_RAW_BASE=/^[a-f0-9]{40}$/.test(revision)?
+      'https://raw.githubusercontent.com/PokeMiners/pogo_assets/'+revision+'/Images/Pokemon%20-%20256x256/Addressable%20Assets/':'';
+    const home=spriteInfo.home||{};
     if(typeof home.base==='string'&&home.base.startsWith('https://raw.githubusercontent.com/PokeAPI/sprites/'))HOME_BASE=home.base;
     HOME_FILES=new Set(Array.isArray(home.files)?home.files:[]);
     HOME_SHINY=new Set(Array.isArray(home.shiny)?home.shiny:[]);
     HOME_FEMALE=new Set(Array.isArray(home.female)?home.female:[]);
-    let rows=[];
-    try{rows=getCatalog(sources.pokemon,sources.forms,sources.jpPokemon||{},sources.jpForms||{},sources.costumes||{},sources.labels||{},sources.released,sources.shiny,sources.pokeCSV,sources.pokenames);}catch(e){console.error('Catalog build error',e);}
-    if(rows.length<100){rows=fallback();sourceStatus='fallback';}
-    else sourceStatus=failed.length?'partial':'ready';
-    rows.push(...genderEntries(sources.gender,rows,sources.jpPokemon||{}));
-    addCustomToCatalog(rows);
-    const dedup=auditCatalog(rows);
-    migrateGenderChecks(dedup);
-    migrateLegacyFormChecks(dedup);
-    data=dedup.sort(sortEntries);
-    if(sourceStatus==='ready'){els.status.className='notice success';els.status.innerHTML='<span class="pulse"></span>データを読み込みました。入手チェックはこのブラウザに保存されます。';}
-    else if(sourceStatus==='partial'){els.status.className='notice warn';els.status.textContent=`一部のデータ提供元に接続できませんでした（${failed.join('、')}）。表示件数や集計値が不完全な可能性があります。`;}
-    else{els.status.className='notice warn';els.status.textContent='オンラインのデータを取得できず、一部のサンプル項目のみ表示しています。インターネット接続を確認し、データ管理から再取得してください。';}
-    if(force)message('データ一覧を再読み込みしました');
+    const rows=Array.isArray(pack?.rows)?pack.rows.map(x=>({...x})):[];
+    if(rows.length<100){
+      data=fallback().sort(sortEntries);
+      sourceStatus='fallback';
+      els.status.className='notice warn';
+      els.status.textContent='ローカル図鑑を読み込めませんでした。サンプルのみ表示しています。ネット接続を確認してください。';
+    }else{
+      addCustomToCatalog(rows);
+      const unique=auditCatalog(rows);
+      migrateGenderChecks(unique);
+      migrateLegacyFormChecks(unique);
+      data=unique.sort(sortEntries);
+      sourceStatus=LOCAL_ATLAS_INFO?'ready':'partial';
+      if(LOCAL_ATLAS_INFO&&GO_FILES.size){
+        els.status.className='notice success';
+        els.status.textContent='図鑑データと撮影画像をリポジトリ内から読み込みました。入手チェックはこのブラウザ内に保存されます。';
+      }else{
+        els.status.className='notice warn';
+        els.status.textContent='図鑑は読み込めましたが、画像索引の一部を取得できません。外部の参考画像が表示される場合があります。';
+      }
+    }
+    if(force)message('リポジトリ内の図鑑を再読み込みしました');
     render();
   }
   const rowsFor=cat=>data.filter(x=>x.category===cat);
@@ -570,8 +589,21 @@
       add('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/'+id+'.png','公式イラスト参考画像（性差未反映）');
     return renderImageOptions(candidates,label);
   }
+  function localAtlasSprite(x,shiny){
+    if(!LOCAL_ATLAS_INFO||!['normal','shiny'].includes(x.category))return null;
+    const missing=shiny?LOCAL_ATLAS_INFO.shinyMissing:LOCAL_ATLAS_INFO.normalMissing;
+    if(!Array.isArray(missing)||missing.includes(x.dex)||x.dex<1||x.dex>1025)return null;
+    const atlas=shiny?LOCAL_ATLAS_INFO.shiny:LOCAL_ATLAS_INFO.normal;
+    if(atlas!=='images/pogo-shiny-atlas.webp'&&atlas!=='images/pogo-normal-atlas.webp')return null;
+    const tile=104,cols=16;
+    const dx=((x.dex-1)%cols)*tile,dy=Math.floor((x.dex-1)/cols)*tile;
+    const label=esc(x.name+(shiny?' 色違い':'')+'：GoogleドライブのPokémon GO図鑑画像');
+    return '<span class="atlas-sprite" role="img" aria-label="'+label+'" title="'+label+
+      '" style="background-image:url(\'./'+atlas+'\');background-position:-'+dx+'px -'+dy+'px"></span>';
+  }
   function spriteTag(x,shiny){
-    return renderImageOptions(imageCandidates(x,shiny),x.name+' '+x.sub+(shiny?' 色違い':''));
+    return localAtlasSprite(x,shiny)||
+      renderImageOptions(imageCandidates(x,shiny),x.name+' '+x.sub+(shiny?' 色違い':''));
   }
   function makeCard(x){
     const costume=isCostume(x.category),gender=isGender(x.category),excluded=Boolean(state.excluded[x.id]),yes=isOwned(x);
