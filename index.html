@@ -299,6 +299,8 @@
       const uri=String(entry.artBase||'')+entry.artFile.replace('.s.icon.png',shiny?'.s.icon.png':'.icon.png');
       if(/^https:\/\/cdn\.jsdelivr\.net\/gh\/PokeMiners\//.test(uri))add(uri,'');
     }
+    // Never use a generic shiny/ordinary Pokémon as if it wore the selected costume.
+    if(costume)return out;
     if(isGender(cat))return out;
     if(!standard&&!costume){
       // Scatterbug and Spewpa have the same visible appearance across habitat patterns.
