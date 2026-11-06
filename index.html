@@ -85,7 +85,7 @@
       <div class="cards" id="cards" aria-live="polite"></div>
       <div id="empty" class="empty" hidden><div>◌</div><strong>該当するポケモンがありません</strong><span>検索条件・フィルタを変更してください。</span></div>
       <button type="button" class="button load-more" id="load-more" hidden>さらに表示する</button>
-      <p class="helper" id="catalog-help">※ 実装情報は2026年11月7日時点の確認結果です。公開データをもとにした判定のため、未確認のフォルム・衣装は引き続き調査対象です。※ 通常表示では実装確認済みのみを集計します。性差・衣装タブでは未実装・確認中も一覧に掲載します。別フォルムではチェックをオンにした場合のみ表示します（通常の達成率には含まれません）。「未実装・未確認も表示」をオンにすると、その項目も分母・入手済み数に加え、チェックの操作で進捗バーが変動します。衣装の色違いも確認中のものはオンのときだけ集計します。色違い未解禁の衣装は進捗から除外します。※ Googleドライブの図鑑スクリーンショットから画像を切り出しました。画像不足は未所持を意味せず、未実装・未解禁や撮影範囲外も含みます。「不足画像CSV」で図鑑番号別に確認できます。※ 「全て選択／全て解除」は現在のタブで検索・絞り込みに一致する全項目（続きを含む）に適用します。オス・メスはそれぞれ独立、衣装は通常色・色違いを別タブで管理します。フォルム・衣装にはゲームデータなどを基にした候補を含みます。実装状況や色違いの解禁状況は、個々に検証済みとは限りません。</p>
+      <p class="helper" id="catalog-help">※ 実装情報は2026年11月7日時点の確認結果です。公開データをもとにした判定のため、未確認のフォルム・衣装は引き続き調査対象です。※ チェックがオフのときは全タブで実装確認済みのみを表示・集計します。未実装・確認中はチェックをオンにした場合のみ一覧に表示します。「未実装・未確認も表示」をオンにすると、その項目も分母・入手済み数に加え、チェックの操作で進捗バーが変動します。衣装の色違いも確認中のものはオンのときだけ集計します。色違い未解禁の衣装は進捗から除外します。※ Googleドライブの図鑑スクリーンショットから画像を切り出しました。画像不足は未所持を意味せず、未実装・未解禁や撮影範囲外も含みます。「不足画像CSV」で図鑑番号別に確認できます。※ 「全て選択／全て解除」は現在のタブで検索・絞り込みに一致する全項目（続きを含む）に適用します。オス・メスはそれぞれ独立、衣装は通常色・色違いを別タブで管理します。フォルム・衣装にはゲームデータなどを基にした候補を含みます。実装状況や色違いの解禁状況は、個々に検証済みとは限りません。</p>
     </main>
     <aside class="side-scroll" aria-label="ページ内スクロール"><button type="button" id="scroll-top" aria-label="ページの先頭へ" title="先頭へ">↑</button><button type="button" id="scroll-bottom" aria-label="ページの末尾へ" title="末尾へ">↓</button></aside>
     <footer><span>個人用・非公式ファンツール / データはこのブラウザ内に保存</span><span>Pokémonおよび関連名称・画像の権利は各権利者に帰属します。</span></footer>
@@ -98,12 +98,12 @@
 /* Pokémon GO personal collection tracker. No accounts or analytics. */
 (() => {
   'use strict';
-  const VERSION = '2.9.1';
+  const VERSION = '2.9.2';
   const STORE_KEY = 'pogo-personal-collection-v1';
   const CACHE_KEY = 'pogo-catalog-cache-v1';
   const PAGE_SIZE = 120;
-  const alwaysVisible=cat=>['gender','shinygender','costumepika','shinycostumepika','costumeother','shinycostumeother'].includes(cat);
-  const pageLimitFor=cat=>['forms','shinyforms'].includes(cat)||alwaysVisible(cat)?Number.MAX_SAFE_INTEGER:PAGE_SIZE;
+  const showAllCardsAtOnce=cat=>['gender','shinygender','costumepika','shinycostumepika','costumeother','shinycostumeother'].includes(cat);
+  const pageLimitFor=cat=>['forms','shinyforms'].includes(cat)||showAllCardsAtOnce(cat)?Number.MAX_SAFE_INTEGER:PAGE_SIZE;
   const percent=(owned,total)=>total?Math.round(owned/total*10000)/100:0;
   const CATS = [
     {id:'normal', title:'通常ポケモン', short:'通常', subtitle:'全国図鑑', note:'全国図鑑番号ごとに独立してチェックします。'},
@@ -115,7 +115,7 @@
     {id:'costumepika',title:'衣装・ピカチュウ',short:'衣装ピカチュウ',subtitle:'通常色・実装順',note:'ピカチュウ衣装を初実装の年代・イベント順に表示します。104種類（実装済み101・今後3）を管理します。日付未確認の一部は同年内で暫定順です。'},
     {id:'shinycostumepika',title:'色違い・衣装ピカチュウ',short:'色違い衣装ピカチュウ',subtitle:'色違い・実装順',note:'通常色の初実装順に色違い衣装を並べます。104候補（解禁照合済み99・確認中1・未解禁1・今後3）を管理します。'},
     {id:'costumeother',title:'衣装・その他',short:'衣装その他',subtitle:'通常色',note:'ピカチュウ以外の衣装の通常色を管理します。'},
-    {id:'shinycostumeother',title:'色違い・衣装その他',short:'色違い衣装その他',subtitle:'色違い衣装',note:'ピカチュウ以外の衣装の色違いを独立して管理します。解禁未確認も表示します。'},
+    {id:'shinycostumeother',title:'色違い・衣装その他',short:'色違い衣装その他',subtitle:'色違い衣装',note:'ピカチュウ以外の衣装の色違いを独立して管理します。未解禁・確認中は表示切替をオンにした場合のみ表示します。'},
   ];
   const GENS=[0,151,251,386,493,649,721,809,905,1025];
   const BASE='https://cdn.jsdelivr.net/gh/WatWowMap/pogo-data-api@main/data/v1/';
@@ -635,7 +635,7 @@
       total+=keys.length;
       for(const k of keys)if(state.owned[k])owned++;
     }
-    const count=els.showUnreleased.checked||alwaysVisible(cat)?entries.length:entries.filter(x=>releaseOf(x)==='released').length;
+    const count=els.showUnreleased.checked?entries.length:entries.filter(x=>releaseOf(x)==='released').length;
     return {total,owned,pct:percent(owned,total),entries:count};
   }
   function renderSummary(){
@@ -730,7 +730,7 @@
   function filteredRows(){
     const query=norm(els.search.value),status=els.ownership.value,selectedGen=els.generation.value,showUnreleased=els.showUnreleased.checked;
     return rowsFor(active).filter(x=>{
-      if(!showUnreleased&&!alwaysVisible(active)&&releaseOf(x)!=='released')return false;
+      if(!showUnreleased&&releaseOf(x)!=='released')return false;
       if(selectedGen!=='all'&&String(x.gen)!==selectedGen)return false;
        if((active==='forms'||active==='shinyforms')&&els.formType.value!=='all'&&x.formKind!==els.formType.value)return false;
       if(query&&!norm(`${x.dex} ${String(x.dex).padStart(4,'0')} ${x.name} ${x.sub} ${x.english||''} ${x.formProto||''} ${x.firstReleaseYear||''}`).includes(query))return false;
@@ -769,7 +769,7 @@
     renderRegionProgress();
     const cat=CATS.find(c=>c.id===active),r=filteredRows();
     $('current-title').textContent=cat.title;$('current-description').textContent=cat.note;
-    const costumeDetail=active==='costumepika'?' （登場済み101・予定3）':
+    const costumeDetail=!els.showUnreleased.checked?'':active==='costumepika'?' （登場済み101・予定3）':
       active==='shinycostumepika'?' （解禁照合済み99・未解禁2・予定3）':'';
     $('visible-count').textContent=`${r.length.toLocaleString()} 件`+(els.search.value||els.generation.value!=='all'||els.ownership.value!=='all'?'':costumeDetail);
     const rows=r.slice(0,visibleLimit);els.cards.innerHTML=rows.map(makeCard).join('');
