@@ -471,7 +471,7 @@
   }
   function migrateGenderChecks(rows){
     let changed=false;
-    for(const row of rows.filter(x=>isGender(x.category)&&x.genderForm==='BASE')){
+    for(const row of rows.filter(x=>x.category==='gender'&&x.genderForm==='BASE')){
       const parent=rows.find(x=>x.category==='normal'&&x.dex===row.dex);
       const slug=String(parent?.english||'').toUpperCase().replace(/[^A-Z0-9]+/g,'_');
       if(!slug)continue;
@@ -697,30 +697,25 @@
       renderImageOptions(imageCandidates(x,shiny),x.name+' '+x.sub+(shiny?' 色違い':''));
   }
   function makeCard(x){
-    const costume=isCostume(x.category),gender=isGender(x.category),excluded=Boolean(state.excluded[x.id]),yes=isOwned(x);
+    const gender=isGender(x.category),excluded=Boolean(state.excluded[x.id]),yes=isOwned(x);
     const ownClass=excluded?'excluded':yes?'owned':'';
     const release=releaseOf(x);
     const badge=excluded?'<span class="card-badge excluded-badge">対象外</span>':
       release==='unreleased'?'<span class="card-badge" title="Pokémon GO未実装">未実装</span>':
-      release==='unverified'?'<span class="card-badge unverified-badge" title="この姿の実装が確認できていません">確認中</span>':'';
+      release==='unverified'?'<span class="card-badge unverified-badge" title="実装・色違いの解禁を確認中">確認中</span>':'';
     const unique=esc(x.id),n=String(x.dex).padStart(4,'0');
     const main=`<div class="card-header"><span class="card-no">No.${n}</span><button type="button" class="mini-menu" data-action="exclude" data-id="${unique}" aria-label="${esc(x.name)}を${excluded?'集計に含める':'集計対象外にする'}" title="集計対象から${excluded?'戻す':'除外'}">⋯</button></div>${badge}`;
-    const shiny=x.category==='shiny'||x.category==='shinyforms'||x.category==='shinygender';
-    const pictures=costume
-      ?`<div class="costume-images"><div class="sprite"><small>通常色</small>${spriteTag(x,false)}</div><div class="sprite"><small>色違い</small>${x.shinyAvailable===false?'<span class="art-missing">対象外</span>':spriteTag(x,true)}</div></div>`
-      :gender?`<div class="costume-images"><div class="sprite"><small>♂ オス</small>${genderSprite(x.maleFile,x.name+(shiny?' 色違い':'')+' オス',x.dex,'male',shiny)}</div><div class="sprite"><small>♀ メス</small>${genderSprite(x.femaleFile,x.name+(shiny?' 色違い':'')+' メス',x.dex,'female',shiny)}</div></div>`
+    const shiny=x.category==='shiny'||x.category==='shinyforms'||x.category==='shinygender'||isShinyCostume(x.category);
+    const pictures=gender
+      ?`<div class="costume-images"><div class="sprite"><small>♂ オス</small>${genderSprite(x.maleFile,x.name+(shiny?' 色違い':'')+' オス',x.dex,'male',shiny)}</div><div class="sprite"><small>♀ メス</small>${genderSprite(x.femaleFile,x.name+(shiny?' 色違い':'')+' メス',x.dex,'female',shiny)}</div></div>`
       :`<div class="sprite">${spriteTag(x,shiny)}</div>`;
     const sub=x.formKind==='regional'?'リージョン：'+x.sub:x.sub;
     const inner=`${pictures}<span class="card-name">${esc(x.name)}</span><span class="card-sub">${esc(sub||' ')}</span>`;
-    if(costume){
-      const a=Boolean(state.owned[x.id+':normal']),b=Boolean(state.owned[x.id+':shiny']);
-      return `<article class="pokemon-card ${ownClass}" data-id="${unique}">${main}<div class="card-main" title="衣装：${esc(x.sub)}">${inner}</div><div class="costume-foot"><button type="button" class="mini-check ${a?'checked':''}" data-id="${unique}" data-action="normal" aria-pressed="${a}">${a?'✓ ':''}通常</button><button type="button" class="mini-check shiny ${b?'checked':''}" data-id="${unique}" data-action="shiny" aria-pressed="${b}" ${x.shinyAvailable===false?'disabled title="色違い対象外"':x.shinyReleaseStatus!=='released'?'title="この衣装の色違いは実装を未確認（チェック保存可・達成率対象外）"':''}>${b?'✓ ':''}★色違い${x.shinyAvailable!==false&&x.shinyReleaseStatus!=='released'?' ?':''}</button></div></article>`;
-    }
     if(gender){
       const male=Boolean(state.owned[x.id+':male']),female=Boolean(state.owned[x.id+':female']);
       return `<article class="pokemon-card ${ownClass}" data-id="${unique}">${main}<div class="card-main">${inner}</div><div class="costume-foot"><button type="button" class="mini-check ${male?'checked':''}" data-id="${unique}" data-action="male" aria-pressed="${male}">${male?'✓ ':''}${shiny?'★':''}♂ オス</button><button type="button" class="mini-check gender-female ${female?'checked':''}" data-id="${unique}" data-action="female" aria-pressed="${female}">${female?'✓ ':''}${shiny?'★':''}♀ メス</button></div></article>`;
     }
-    return `<article class="pokemon-card ${ownClass}" data-id="${unique}">${main}<button type="button" class="card-main" data-action="check" data-id="${unique}" aria-pressed="${yes}" aria-label="${esc(x.name)} ${esc(x.sub)} ${yes?'入手済み':'未入手'}">${inner}</button><div class="card-foot"><span class="captured-dot">${yes?'✓':'○'}</span>${yes?'入手済み':'未入手'}</div></article>`;
+    return `<article class="pokemon-card ${ownClass}" data-id="${unique}">${main}<button type="button" class="card-main" data-action="check" data-id="${unique}" aria-pressed="${yes}" aria-label="${esc(x.name)} ${esc(x.sub)} ${yes?'入手済み':'未入手'}">${inner}</button><div class="card-foot"><span class="captured-dot">${yes?'✓':'○'}</span>${yes?'入手済み':'未入手'}${isShinyCostume(x.category)?' ★色違い':''}</div></article>`;
   }
   function filteredRows(){
     const query=norm(els.search.value),status=els.ownership.value,selectedGen=els.generation.value,showUnreleased=els.showUnreleased.checked;
@@ -770,14 +765,14 @@
     if(r.length>visibleLimit)els.loadMore.textContent=`さらに表示する （${visibleLimit.toLocaleString()} / ${r.length.toLocaleString()} 件）`;
   }
   function render(){renderSummary();renderCards();}
-  function changeCat(cat){if(!CATS.some(c=>c.id===cat))return;active=cat;visibleLimit=pageLimitFor(cat);els.formType.hidden=!(cat==='forms'||cat==='shinyforms');$('order-open').hidden=cat!=='costumepika';render();}
+  function changeCat(cat){if(!CATS.some(c=>c.id===cat))return;active=cat;visibleLimit=pageLimitFor(cat);els.formType.hidden=!(cat==='forms'||cat==='shinyforms');$('order-open').hidden=cat!=='costumepika'&&cat!=='shinycostumepika';render();}
   function toggleOwnership(id,kind){
     const x=data.find(r=>r.id===id);if(!x)return;
     if(isDual(x.category)){
       const allowed=isGender(x.category)?['male','female']:['normal','shiny'];
       if(!allowed.includes(kind)||(kind==='shiny'&&x.shinyAvailable===false))return;
     }
-    const k=isDual(x.category)?id+':'+kind:id;
+    const k=isDual(x.category)?id+':'+kind:ownedKey(x);
     if(state.owned[k])delete state.owned[k];else state.owned[k]=true;
     persist();render();
   }
@@ -787,10 +782,8 @@
     const verb=select?'すべて入手済みに登録':'すべて未入手に戻す';
     if(!window.confirm(cat.title+'：検索・絞り込みに一致する'+rows.length+'件を'+verb+'しますか？\n続きページも含みます。他のタブは変更しません。'))return;
     for(const x of rows){
-      const keys=isGender(x.category)?['male','female']:
-        isCostume(x.category)?(x.shinyAvailable===false?['normal']:['normal','shiny']):[null];
-      for(const flag of keys){
-        const k=flag?x.id+':'+flag:x.id;
+      const keys=isGender(x.category)?[x.id+':male',x.id+':female']:[ownedKey(x)];
+      for(const k of keys){
         if(select)state.owned[k]=true;else delete state.owned[k];
       }
     }
