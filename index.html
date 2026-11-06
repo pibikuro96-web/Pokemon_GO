@@ -67,7 +67,7 @@
     <div class="notice" id="data-status" role="status"><span class="pulse"></span> ポケモンのデータを読み込んでいます…</div>
     <section class="summary-grid" id="summary-grid" aria-label="カテゴリ別の達成状況"></section>
     <main class="workspace">
-      <div class="workspace-top"><div><div class="eyebrow dark">YOUR COLLECTION</div><h2>コンプチェッカー</h2></div><div class="workspace-actions"><button type="button" class="button secondary" id="order-open" hidden>ピカチュウ順序変更</button><button type="button" class="button secondary" id="bulk-select" title="現在の絞り込みに一致する全項目を入手済みにする">✓ 全て選択</button><button type="button" class="button secondary" id="bulk-clear" title="現在の絞り込みに一致する全項目のチェックを解除">全て解除</button><a class="button secondary" href="./missing-pokemon.csv" download="pokemon-go-missing-images.csv" title="Googleドライブにある図鑑画像で未確認の230匹の一覧">不足画像CSV（230種）</a><a class="button secondary" href="./pika-costume-audit.csv" download="pika-costume-audit.csv" title="初実装順にピカチュウ衣装104種類と色違いを確認">衣装104件の精査CSV</a><a class="button secondary" href="./form-audit.csv" download="form-audit.csv" title="125種族・356種類の別フォルムの通常色と色違いを照合">フォルム356件の精査CSV</a><button type="button" class="button secondary" id="add-open">＋ 項目を追加</button></div></div>
+      <div class="workspace-top"><div><div class="eyebrow dark">YOUR COLLECTION</div><h2>コンプチェッカー</h2></div><div class="workspace-actions"><button type="button" class="button secondary" id="order-open" hidden>ピカチュウ順序変更</button><button type="button" class="button secondary" id="bulk-select" title="現在の絞り込みに一致する全項目を入手済みにする">✓ 全て選択</button><button type="button" class="button secondary" id="bulk-clear" title="現在の絞り込みに一致する全項目のチェックを解除">全て解除</button><a class="button secondary" href="./missing-pokemon.csv" download="pokemon-go-missing-images.csv" title="Googleドライブにある図鑑画像で未確認の230匹の一覧">不足画像CSV（230種）</a><a class="button secondary" href="./pika-costume-audit.csv" download="pika-costume-audit.csv" title="初実装順にピカチュウ衣装104種類と色違いを確認">衣装104件の精査CSV</a><a class="button secondary" href="./form-audit.csv" download="form-audit.csv" title="125種族・336種類の別フォルムの通常色と色違いを照合">フォルム336件の精査CSV</a><button type="button" class="button secondary" id="add-open">＋ 項目を追加</button></div></div>
       <nav class="tabs" id="category-tabs" aria-label="カテゴリ切り替え"></nav>
       <section class="controls" aria-label="表示条件">
         <div class="search-wrap"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="ポケモン名・図鑑番号・フォルム名で検索" autocomplete="off" aria-label="検索" /></div>
@@ -98,7 +98,7 @@
 /* Pokémon GO personal collection tracker. No accounts or analytics. */
 (() => {
   'use strict';
-  const VERSION = '2.9.3';
+  const VERSION = '2.9.4';
   const STORE_KEY = 'pogo-personal-collection-v1';
   const CACHE_KEY = 'pogo-catalog-cache-v1';
   const PAGE_SIZE = 120;
@@ -107,9 +107,9 @@
   const percent=(owned,total)=>total?Math.round(owned/total*10000)/100:0;
   const CATS = [
     {id:'normal', title:'通常ポケモン', short:'通常', subtitle:'全国図鑑', note:'全国図鑑番号ごとに独立してチェックします。'},
-    {id:'forms', title:'別フォルム・リージョン',short:'フォルム',subtitle:'姿・地域違い',note:'通常の姿を重複登録しない別フォルムです。未実装・確認中は上部の表示切替をオンにしたときだけ表示します。'},
+    {id:'forms', title:'別フォルム・リージョン',short:'フォルム',subtitle:'姿・地域違い',note:'通常図鑑の代表姿（ルガルガン・まひる、オドリドリ・めらめら等）を重複登録せず、それ以外の姿を管理します。未実装・確認中は上部の表示切替をオンにしたときだけ表示します。'},
     {id:'shiny',title:'色違い・通常',short:'色違い',subtitle:'通常の色違い',note:'通常種の色違いを通常種とは独立してチェックします。'},
-    {id:'shinyforms',title:'色違い・別フォルム',short:'色違いフォルム',subtitle:'姿・地域違い',note:'フォルムの色違いは独立してチェックします。未実装・未解禁・確認中は上部の表示切替をオンにしたときだけ表示します。'},
+    {id:'shinyforms',title:'色違い・別フォルム',short:'色違いフォルム',subtitle:'姿・地域違い',note:'通常図鑑の代表姿と重複する色違いを除き、追加フォルムの色違いだけを独立してチェックします。未実装・未解禁・確認中は上部の表示切替をオンにしたときだけ表示します。'},
     {id:'gender',title:'オス・メス差分',short:'オス・メス',subtitle:'性差のある姿',note:'本編で性別によって姿が違うポケモンを、オスとメス別々にチェックします。'},
     {id:'shinygender',title:'色違い・オス・メス差分',short:'色違いオス・メス',subtitle:'色違いの性差',note:'色違いのオスとメスを別々に管理します。通常色のオス・メスとは独立してチェックできます。'},
     {id:'costumepika',title:'衣装・ピカチュウ',short:'衣装ピカチュウ',subtitle:'通常色・実装順',note:'ピカチュウ衣装を初実装の年代・イベント順に表示します。104種類（実装済み101・今後3）を管理します。日付未確認の一部は同年内で暫定順です。'},
