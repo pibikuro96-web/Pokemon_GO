@@ -1,0 +1,1047 @@
+{
+  "source": "https://docs.google.com/spreadsheets/d/1NPnnuVkjtA9N6y2tnITIEal4XSrt4ahgtU-Bqi2U460/edit",
+  "sheet": "シート1",
+  "dateCol": "F",
+  "items": [
+    {
+      "rank": 1,
+      "id": "costume:25:c:HOLIDAY_2016",
+      "shinyId": "shinycostume:costume:25:c:HOLIDAY_2016",
+      "firstSeen": "2016-12-13",
+      "sub": "サンタ帽子（2016）",
+      "imageReviewed": true,
+      "sourceRow": 4,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 2,
+      "id": "costume:25:c:ANNIVERSARY",
+      "shinyId": "shinycostume:costume:25:c:ANNIVERSARY",
+      "firstSeen": "2017-02-27",
+      "sub": "パーティハット（2017）",
+      "imageReviewed": true,
+      "sourceRow": 6,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 3,
+      "id": "costume:25:c:ONE_YEAR_ANNIVERSARY",
+      "shinyId": "shinycostume:costume:25:c:ONE_YEAR_ANNIVERSARY",
+      "firstSeen": "2017-07-07",
+      "sub": "サトシの帽子（2017）",
+      "imageReviewed": true,
+      "sourceRow": 8,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 4,
+      "id": "costume:25:c:HALLOWEEN_2017",
+      "shinyId": "shinycostume:costume:25:c:HALLOWEEN_2017",
+      "firstSeen": "2017-10-21",
+      "sub": "魔女の帽子（2017）",
+      "imageReviewed": true,
+      "sourceRow": 10,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 5,
+      "id": "costume:25:c:SUMMER_2018",
+      "shinyId": "shinycostume:costume:25:c:SUMMER_2018",
+      "firstSeen": "2018-07-07",
+      "sub": "麦わら帽子とサングラス（2018）",
+      "imageReviewed": true,
+      "sourceRow": 12,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 6,
+      "id": "costume:25:c:FALL_2018",
+      "shinyId": "shinycostume:costume:25:c:FALL_2018",
+      "firstSeen": "2018-10-06",
+      "sub": "フラグメントの黒いキャップ（2018）",
+      "imageReviewed": true,
+      "sourceRow": 14,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 7,
+      "id": "costume:25:c:NOVEMBER_2018",
+      "shinyId": "shinycostume:costume:25:c:NOVEMBER_2018",
+      "firstSeen": "2019-02-27",
+      "sub": "花冠（2018）",
+      "imageReviewed": true,
+      "sourceRow": 16,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 8,
+      "id": "costume:25:c:FEB_2019",
+      "shinyId": "shinycostume:costume:25:c:FEB_2019",
+      "firstSeen": "2019-05-08",
+      "sub": "探偵帽子（2019）",
+      "imageReviewed": true,
+      "sourceRow": 18,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 9,
+      "id": "costume:25:c:MAY_2019_NOEVOLVE",
+      "shinyId": "shinycostume:costume:25:c:MAY_2019_NOEVOLVE",
+      "firstSeen": "2019-07-22",
+      "sub": "麦わら帽子（2019）",
+      "imageReviewed": true,
+      "sourceRow": 20,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 10,
+      "id": "costume:25:f:FALL_2019",
+      "shinyId": "shinycostume:costume:25:f:FALL_2019",
+      "firstSeen": "2019-10-18",
+      "sub": "ミミッキュ仮装（2019）",
+      "imageReviewed": true,
+      "sourceRow": 22,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 11,
+      "id": "costume:25:c:WINTER_2018",
+      "shinyId": "shinycostume:costume:25:c:WINTER_2018",
+      "firstSeen": "2019-12-24",
+      "sub": "冬のニット帽（2018）",
+      "imageReviewed": true,
+      "sourceRow": 24,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 12,
+      "id": "costume:25:c:JAN_2020_NOEVOLVE",
+      "shinyId": "shinycostume:costume:25:c:JAN_2020_NOEVOLVE",
+      "firstSeen": "2020-02-26",
+      "sub": "赤いパーティハット（2020）",
+      "imageReviewed": true,
+      "sourceRow": 26,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 13,
+      "id": "costume:25:f:COPY_2019",
+      "shinyId": "shinycostume:costume:25:f:COPY_2019",
+      "firstSeen": "2020-02-26",
+      "sub": "コピーピカチュウ（2020）",
+      "imageReviewed": true,
+      "sourceRow": 28,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 14,
+      "id": "costume:25:f:VS_2019",
+      "shinyId": "shinycostume:costume:25:f:VS_2019",
+      "firstSeen": "2020-03-14",
+      "sub": "マスクドピカチュウ",
+      "imageReviewed": true,
+      "sourceRow": 30,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 15,
+      "id": "costume:25:c:SAFARI_2020_NOEVOLVE",
+      "shinyId": "shinycostume:costume:25:c:SAFARI_2020_NOEVOLVE",
+      "firstSeen": "2020-03-27",
+      "sub": "サファリ帽子（2020）",
+      "imageReviewed": true,
+      "sourceRow": 32,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 16,
+      "id": "costume:25:c:APRIL_2020_NOEVOLVE",
+      "shinyId": "shinycostume:costume:25:c:APRIL_2020_NOEVOLVE",
+      "firstSeen": "2020-04-09",
+      "sub": "花飾りの帽子（2020）",
+      "imageReviewed": true,
+      "sourceRow": 34,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 17,
+      "id": "costume:25:c:KANTO_2020_NOEVOLVE",
+      "shinyId": "shinycostume:costume:25:c:KANTO_2020_NOEVOLVE",
+      "firstSeen": "2020-05-01",
+      "sub": "リザードンの帽子（2020）",
+      "imageReviewed": true,
+      "sourceRow": 36,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 18,
+      "id": "costume:25:c:JOHTO_2020_NOEVOLVE",
+      "shinyId": "shinycostume:costume:25:c:JOHTO_2020_NOEVOLVE",
+      "firstSeen": "2020-05-08",
+      "sub": "ブラッキーの帽子（2020）",
+      "imageReviewed": true,
+      "sourceRow": 38,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 19,
+      "id": "costume:25:c:HOENN_2020_NOEVOLVE",
+      "shinyId": "shinycostume:costume:25:c:HOENN_2020_NOEVOLVE",
+      "firstSeen": "2020-05-15",
+      "sub": "レックウザの帽子（2020）",
+      "imageReviewed": true,
+      "sourceRow": 40,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 20,
+      "id": "costume:25:c:SINNOH_2020_NOEVOLVE",
+      "shinyId": "shinycostume:costume:25:c:SINNOH_2020_NOEVOLVE",
+      "firstSeen": "2020-05-22",
+      "sub": "ルカリオの帽子（2020）",
+      "imageReviewed": true,
+      "sourceRow": 42,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 21,
+      "id": "costume:25:f:COSTUME_2020",
+      "shinyId": "shinycostume:costume:25:f:COSTUME_2020",
+      "firstSeen": "2020-07-03",
+      "sub": "そらをとぶピカチュウ・6色風船（2020）",
+      "imageReviewed": true,
+      "sourceRow": 44,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 22,
+      "id": "costume:25:c:COSTUME_1",
+      "shinyId": "shinycostume:costume:25:c:COSTUME_1",
+      "firstSeen": "2020-10-06",
+      "sub": "ワールドキャップ（2020）",
+      "imageReviewed": true,
+      "sourceRow": 46,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 23,
+      "id": "costume:25:f:ADVENTURE_HAT_2020",
+      "shinyId": "shinycostume:costume:25:f:ADVENTURE_HAT_2020",
+      "firstSeen": "2020-12-14",
+      "sub": "探検家の帽子（2020）",
+      "imageReviewed": true,
+      "sourceRow": 48,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 24,
+      "id": "costume:25:f:WINTER_2020",
+      "shinyId": "shinycostume:costume:25:f:WINTER_2020",
+      "firstSeen": "2020-12-22",
+      "sub": "ウィンターカーニバル衣装（2020）",
+      "imageReviewed": true,
+      "sourceRow": 50,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 25,
+      "id": "costume:25:c:COSTUME_2",
+      "shinyId": "shinycostume:costume:25:c:COSTUME_2",
+      "firstSeen": "2020-12-31",
+      "sub": "新年の帽子（2021）",
+      "imageReviewed": true,
+      "sourceRow": 52,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 26,
+      "id": "costume:25:f:FLYING_5TH_ANNIV",
+      "shinyId": "shinycostume:costume:25:f:FLYING_5TH_ANNIV",
+      "firstSeen": "2021-07-06",
+      "sub": "そらをとぶピカチュウ・5周年風船（2021）",
+      "imageReviewed": true,
+      "sourceRow": 54,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 27,
+      "id": "costume:25:c:GOFEST_2021_NOEVOLVE",
+      "shinyId": "shinycostume:costume:25:c:GOFEST_2021_NOEVOLVE",
+      "firstSeen": "2021-07-17",
+      "sub": "メロエッタの帽子（2021）",
+      "imageReviewed": true,
+      "sourceRow": 56,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 28,
+      "id": "costume:25:f:ROCK_STAR",
+      "shinyId": "shinycostume:costume:25:f:ROCK_STAR",
+      "firstSeen": "2021-07-17",
+      "sub": "ハードロックピカチュウ",
+      "imageReviewed": true,
+      "sourceRow": 58,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 29,
+      "id": "costume:25:f:POP_STAR",
+      "shinyId": "shinycostume:costume:25:f:POP_STAR",
+      "firstSeen": "2021-07-17",
+      "sub": "アイドルピカチュウ",
+      "imageReviewed": true,
+      "sourceRow": 60,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 30,
+      "id": "costume:25:c:HALLOWEEN_2021_NOEVOLVE",
+      "shinyId": "shinycostume:costume:25:c:HALLOWEEN_2021_NOEVOLVE",
+      "firstSeen": "2021-10-15",
+      "sub": "ハロウィンいたずら帽子（2021）",
+      "imageReviewed": true,
+      "sourceRow": 62,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 31,
+      "id": "costume:25:f:KARIYUSHI",
+      "shinyId": "shinycostume:costume:25:f:KARIYUSHI",
+      "firstSeen": "2022-03-19",
+      "sub": "かりゆしウェア（沖縄）",
+      "imageReviewed": true,
+      "sourceRow": 64,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 32,
+      "id": "costume:25:f:FLYING_OKINAWA",
+      "shinyId": "shinycostume:costume:25:f:FLYING_OKINAWA",
+      "firstSeen": "2022-05-03",
+      "sub": "そらをとぶピカチュウ・沖縄風船（2022）",
+      "imageReviewed": true,
+      "sourceRow": 66,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 33,
+      "id": "costume:25:c:GOFEST_2022_NOEVOLVE",
+      "shinyId": "shinycostume:costume:25:c:GOFEST_2022_NOEVOLVE",
+      "firstSeen": "2022-06-04",
+      "sub": "グラシデアの花（2022）",
+      "imageReviewed": true,
+      "sourceRow": 68,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 34,
+      "id": "costume:25:c:TCG_2022_NOEVOLVE",
+      "shinyId": "shinycostume:costume:25:c:TCG_2022_NOEVOLVE",
+      "firstSeen": "2022-06-16",
+      "sub": "ポケモンカード付きの青い帽子（2022）",
+      "imageReviewed": true,
+      "sourceRow": 70,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 35,
+      "id": "costume:25:c:ANNIVERSARY_2022_NOEVOLVE",
+      "shinyId": "shinycostume:costume:25:c:ANNIVERSARY_2022_NOEVOLVE",
+      "firstSeen": "2022-07-06",
+      "sub": "ケーキ帽子（6周年・2022）",
+      "imageReviewed": true,
+      "sourceRow": 72,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 36,
+      "id": "costume:25:f:WCS_2022",
+      "shinyId": "shinycostume:costume:25:f:WCS_2022",
+      "firstSeen": "2022-08-18",
+      "sub": "WCS2022の帽子と衣装",
+      "imageReviewed": true,
+      "sourceRow": 74,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 37,
+      "id": "costume:25:f:GOFEST_2022",
+      "shinyId": "shinycostume:costume:25:f:GOFEST_2022",
+      "firstSeen": "2022-08-27",
+      "sub": "シェイミ風スカーフ（2022）",
+      "imageReviewed": true,
+      "sourceRow": 76,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 38,
+      "id": "costume:25:f:TSHIRT_01",
+      "shinyId": "shinycostume:costume:25:f:TSHIRT_01",
+      "firstSeen": "2022-10-14",
+      "sub": "きのみ柄の緑Tシャツ（2022・台北）",
+      "imageReviewed": true,
+      "sourceRow": 78,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 39,
+      "id": "costume:25:f:FLYING_01",
+      "shinyId": "shinycostume:costume:25:f:FLYING_01",
+      "firstSeen": "2022-10-14",
+      "sub": "そらをとぶピカチュウ・緑系風船（台北）",
+      "imageReviewed": true,
+      "sourceRow": 80,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 40,
+      "id": "costume:25:f:TSHIRT_02",
+      "shinyId": "shinycostume:costume:25:f:TSHIRT_02",
+      "firstSeen": "2022-11-11",
+      "sub": "花柄の紫Tシャツ（2022・シンガポール）",
+      "imageReviewed": true,
+      "sourceRow": 82,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 41,
+      "id": "costume:25:f:FLYING_02",
+      "shinyId": "shinycostume:costume:25:f:FLYING_02",
+      "firstSeen": "2022-11-11",
+      "sub": "そらをとぶピカチュウ・紫系風船（シンガポール）",
+      "imageReviewed": true,
+      "sourceRow": 84,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 42,
+      "id": "costume:25:c:JAN_2023_NOEVOLVE",
+      "shinyId": "shinycostume:costume:25:c:JAN_2023_NOEVOLVE",
+      "firstSeen": "2022-12-31",
+      "sub": "パーティシルクハット（2023）",
+      "imageReviewed": true,
+      "sourceRow": 86,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 43,
+      "id": "costume:25:c:GOTOUR_2023_HAT",
+      "shinyId": "shinycostume:costume:25:c:GOTOUR_2023_HAT",
+      "firstSeen": "2023-02-19",
+      "sub": "ユウキの帽子（2023）",
+      "imageReviewed": true,
+      "sourceRow": 88,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 44,
+      "id": "costume:25:c:GOTOUR_2023_BANDANA",
+      "shinyId": "shinycostume:costume:25:c:GOTOUR_2023_BANDANA",
+      "firstSeen": "2023-02-19",
+      "sub": "ハルカのリボン（2023）",
+      "imageReviewed": true,
+      "sourceRow": 90,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 45,
+      "id": "costume:25:c:SPRING_2023",
+      "shinyId": "shinycostume:costume:25:c:SPRING_2023",
+      "firstSeen": "2023-04-04",
+      "sub": "桜の飾り（2023）",
+      "imageReviewed": true,
+      "sourceRow": 92,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 46,
+      "id": "costume:25:f:JEJU",
+      "shinyId": "shinycostume:costume:25:f:JEJU",
+      "firstSeen": "2023-07-28",
+      "sub": "みかん柄の水色シャツ（韓国・2023）",
+      "imageReviewed": true,
+      "sourceRow": 94,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 47,
+      "id": "costume:25:f:FLYING_03",
+      "shinyId": "shinycostume:costume:25:f:FLYING_03",
+      "firstSeen": "2023-07-28",
+      "sub": "そらをとぶピカチュウ・橙系風船（韓国）",
+      "imageReviewed": true,
+      "sourceRow": 96,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 48,
+      "id": "costume:25:f:SUMMER_2023_A",
+      "shinyId": "shinycostume:costume:25:f:SUMMER_2023_A",
+      "firstSeen": "2023-08-04",
+      "sub": "マラカイトの冠（2023）",
+      "imageReviewed": true,
+      "sourceRow": 98,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 49,
+      "id": "costume:25:f:WCS_2023",
+      "shinyId": "shinycostume:costume:25:f:WCS_2023",
+      "firstSeen": "2023-08-11",
+      "sub": "WCS2023のTシャツ",
+      "imageReviewed": true,
+      "sourceRow": 100,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 50,
+      "id": "costume:25:f:SUMMER_2023_B",
+      "shinyId": "shinycostume:costume:25:f:SUMMER_2023_B",
+      "firstSeen": "2023-08-26",
+      "sub": "アクアマリンの冠（2023）",
+      "imageReviewed": true,
+      "sourceRow": 102,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 51,
+      "id": "costume:25:f:SUMMER_2023_C",
+      "shinyId": "shinycostume:costume:25:f:SUMMER_2023_C",
+      "firstSeen": "2023-08-26",
+      "sub": "クォーツの冠（2023）",
+      "imageReviewed": true,
+      "sourceRow": 104,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 52,
+      "id": "costume:25:f:SUMMER_2023_D",
+      "shinyId": "shinycostume:costume:25:f:SUMMER_2023_D",
+      "firstSeen": "2023-08-26",
+      "sub": "パイライトの冠（2023）",
+      "imageReviewed": true,
+      "sourceRow": 106,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 53,
+      "id": "costume:25:f:SUMMER_2023_E",
+      "shinyId": "shinycostume:costume:25:f:SUMMER_2023_E",
+      "firstSeen": "2023-08-26",
+      "sub": "アメジストの冠（2023）",
+      "imageReviewed": true,
+      "sourceRow": 108,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 54,
+      "id": "costume:25:c:PI",
+      "shinyId": "shinycostume:costume:25:c:PI",
+      "firstSeen": "2023-10-05",
+      "sub": "名探偵の帽子と虫眼鏡（2023）",
+      "imageReviewed": true,
+      "sourceRow": 110,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 55,
+      "id": "costume:25:c:FALL_2023_NOEVOLVE",
+      "shinyId": "shinycostume:costume:25:c:FALL_2023_NOEVOLVE",
+      "firstSeen": "2023-10-26",
+      "sub": "トリック・オア・トリート衣装（2023）",
+      "imageReviewed": true,
+      "sourceRow": 112,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 56,
+      "id": "costume:25:c:HOLIDAY_2023",
+      "shinyId": "shinycostume:costume:25:c:HOLIDAY_2023",
+      "firstSeen": "2023-12-18",
+      "sub": "ホリデー衣装（2023）",
+      "imageReviewed": true,
+      "sourceRow": 114,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 57,
+      "id": "costume:25:f:GOTOUR_2024_A",
+      "shinyId": "shinycostume:costume:25:f:GOTOUR_2024_A",
+      "firstSeen": "2024-02-16",
+      "sub": "コウキの帽子（2024）",
+      "imageReviewed": true,
+      "sourceRow": 116,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 58,
+      "id": "costume:25:f:GOTOUR_2024_A_02",
+      "shinyId": "shinycostume:costume:25:f:GOTOUR_2024_A_02",
+      "firstSeen": "2024-02-16",
+      "sub": "ヒカリの帽子（2024）",
+      "imageReviewed": true,
+      "sourceRow": 118,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 59,
+      "id": "costume:25:f:GOTOUR_2024_B",
+      "shinyId": "shinycostume:costume:25:f:GOTOUR_2024_B",
+      "firstSeen": "2024-02-16",
+      "sub": "テルの帽子（2024）",
+      "imageReviewed": true,
+      "sourceRow": 120,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 60,
+      "id": "costume:25:f:GOTOUR_2024_B_02",
+      "shinyId": "shinycostume:costume:25:f:GOTOUR_2024_B_02",
+      "firstSeen": "2024-02-16",
+      "sub": "ショウの頭巾（2024）",
+      "imageReviewed": true,
+      "sourceRow": 122,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 61,
+      "id": "costume:25:f:DOCTOR",
+      "shinyId": "shinycostume:costume:25:f:DOCTOR",
+      "firstSeen": "2024-02-29",
+      "sub": "ドクターピカチュウ（おひろめ報酬）",
+      "imageReviewed": true,
+      "sourceRow": 124,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 62,
+      "id": "costume:25:f:TSHIRT_03",
+      "shinyId": "shinycostume:costume:25:f:TSHIRT_03",
+      "firstSeen": "2024-03-02",
+      "sub": "バティック柄Tシャツ（2024・インドネシア）",
+      "imageReviewed": true,
+      "sourceRow": 126,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 63,
+      "id": "costume:25:f:FLYING_04",
+      "shinyId": "shinycostume:costume:25:f:FLYING_04",
+      "firstSeen": "2024-03-02",
+      "sub": "そらをとぶピカチュウ・赤系風船（インドネシア）",
+      "imageReviewed": true,
+      "sourceRow": 128,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 64,
+      "id": "costume:25:f:HORIZONS",
+      "shinyId": "shinycostume:costume:25:f:HORIZONS",
+      "firstSeen": "2024-03-05",
+      "sub": "キャプテンピカチュウの帽子（2024）",
+      "imageReviewed": true,
+      "sourceRow": 130,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 65,
+      "id": "costume:25:f:GOFEST_2024_STIARA",
+      "shinyId": "shinycostume:costume:25:f:GOFEST_2024_STIARA",
+      "firstSeen": "2024-05-30",
+      "sub": "太陽の冠（2024）",
+      "imageReviewed": true,
+      "sourceRow": 132,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 66,
+      "id": "costume:25:f:GOFEST_2024_MTIARA",
+      "shinyId": "shinycostume:costume:25:f:GOFEST_2024_MTIARA",
+      "firstSeen": "2024-05-30",
+      "sub": "月の冠（2024）",
+      "imageReviewed": true,
+      "sourceRow": 134,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 67,
+      "id": "costume:25:f:WCS_2024",
+      "shinyId": "shinycostume:costume:25:f:WCS_2024",
+      "firstSeen": "2024-08-16",
+      "sub": "WCS2024のダイビング装具",
+      "imageReviewed": true,
+      "sourceRow": 136,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 68,
+      "id": "costume:25:f:DIWALI_2024",
+      "shinyId": "shinycostume:costume:25:f:DIWALI_2024",
+      "firstSeen": "2024-11-01",
+      "sub": "サリー（2024・インド）",
+      "imageReviewed": true,
+      "sourceRow": 138,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 69,
+      "id": "costume:25:f:GOTOUR_2025_A",
+      "shinyId": "shinycostume:costume:25:f:GOTOUR_2025_A",
+      "firstSeen": "2025-02-21",
+      "sub": "トウヤの帽子（2025）",
+      "imageReviewed": true,
+      "sourceRow": 140,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 70,
+      "id": "costume:25:f:GOTOUR_2025_A_02",
+      "shinyId": "shinycostume:costume:25:f:GOTOUR_2025_A_02",
+      "firstSeen": "2025-02-21",
+      "sub": "トウコの帽子（2025）",
+      "imageReviewed": true,
+      "sourceRow": 142,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 71,
+      "id": "costume:25:f:GOTOUR_2025_B",
+      "shinyId": "shinycostume:costume:25:f:GOTOUR_2025_B",
+      "firstSeen": "2025-02-21",
+      "sub": "キョウヘイのバイザー（2025）",
+      "imageReviewed": true,
+      "sourceRow": 144,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 72,
+      "id": "costume:25:f:GOTOUR_2025_B_02",
+      "shinyId": "shinycostume:costume:25:f:GOTOUR_2025_B_02",
+      "firstSeen": "2025-02-21",
+      "sub": "メイのバイザー（2025）",
+      "imageReviewed": true,
+      "sourceRow": 146,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 73,
+      "id": "costume:25:f:KURTA",
+      "shinyId": "shinycostume:costume:25:f:KURTA",
+      "firstSeen": "2025-03-13",
+      "sub": "クルタ（2025・インド）",
+      "imageReviewed": true,
+      "sourceRow": 148,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 74,
+      "id": "costume:25:f:GOFEST_2025_MONOCLE_YELLOW",
+      "shinyId": "shinycostume:costume:25:f:GOFEST_2025_MONOCLE_YELLOW",
+      "firstSeen": "2025-05-29",
+      "sub": "黄色い片眼鏡とシルクハット（2025）",
+      "imageReviewed": true,
+      "sourceRow": 150,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 75,
+      "id": "costume:25:f:GOFEST_2025_MONOCLE_RED",
+      "shinyId": "shinycostume:costume:25:f:GOFEST_2025_MONOCLE_RED",
+      "firstSeen": "2025-05-29",
+      "sub": "赤い片眼鏡とシルクハット（2025）",
+      "imageReviewed": true,
+      "sourceRow": 152,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 76,
+      "id": "costume:25:f:GOFEST_2025_MONOCLE_BLUE",
+      "shinyId": "shinycostume:costume:25:f:GOFEST_2025_MONOCLE_BLUE",
+      "firstSeen": "2025-05-29",
+      "sub": "青い片眼鏡とシルクハット（2025）",
+      "imageReviewed": true,
+      "sourceRow": 154,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 77,
+      "id": "costume:25:f:GOFEST_2025_GOGGLES_YELLOW",
+      "shinyId": "shinycostume:costume:25:f:GOFEST_2025_GOGGLES_YELLOW",
+      "firstSeen": "2025-06-28",
+      "sub": "黄色いゴーグルとシルクハット（2025）",
+      "imageReviewed": true,
+      "sourceRow": 156,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 78,
+      "id": "costume:25:f:GOFEST_2025_GOGGLES_RED",
+      "shinyId": "shinycostume:costume:25:f:GOFEST_2025_GOGGLES_RED",
+      "firstSeen": "2025-06-28",
+      "sub": "赤いゴーグルとシルクハット（2025）",
+      "imageReviewed": true,
+      "sourceRow": 158,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 79,
+      "id": "costume:25:f:GOFEST_2025_GOGGLES_BLUE",
+      "shinyId": "shinycostume:costume:25:f:GOFEST_2025_GOGGLES_BLUE",
+      "firstSeen": "2025-06-28",
+      "sub": "青いゴーグルとシルクハット（2025）",
+      "imageReviewed": true,
+      "sourceRow": 160,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 80,
+      "id": "costume:25:c:INDONESIA_2025_NOEVOLVE",
+      "shinyId": "shinycostume:costume:25:c:INDONESIA_2025_NOEVOLVE",
+      "firstSeen": "2025-08-04",
+      "sub": "インドネシア代表サッカーユニフォーム（2025）",
+      "imageReviewed": true,
+      "sourceRow": 162,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 81,
+      "id": "costume:25:f:WCS_2025",
+      "shinyId": "shinycostume:costume:25:f:WCS_2025",
+      "firstSeen": "2025-08-15",
+      "sub": "スタジャン（WCS2025）",
+      "imageReviewed": true,
+      "sourceRow": 164,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 82,
+      "id": "costume:25:f:GOTOUR_2026_C",
+      "shinyId": "shinycostume:costume:25:f:GOTOUR_2026_C",
+      "firstSeen": "2026-02-20",
+      "sub": "カルムの帽子（2026）",
+      "imageReviewed": true,
+      "sourceRow": 166,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 83,
+      "id": "costume:25:f:GOTOUR_2026_C_02",
+      "shinyId": "shinycostume:costume:25:f:GOTOUR_2026_C_02",
+      "firstSeen": "2026-02-20",
+      "sub": "セレナの帽子（2026）",
+      "imageReviewed": true,
+      "sourceRow": 168,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 84,
+      "id": "costume:25:f:GOTOUR_2026_A",
+      "shinyId": "shinycostume:costume:25:f:GOTOUR_2026_A",
+      "firstSeen": "2026-02-23",
+      "sub": "レッドの帽子（2026）",
+      "imageReviewed": true,
+      "sourceRow": 170,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 85,
+      "id": "costume:25:f:GOTOUR_2026_A_02",
+      "shinyId": "shinycostume:costume:25:f:GOTOUR_2026_A_02",
+      "firstSeen": "2026-02-23",
+      "sub": "リーフの帽子（2026）",
+      "imageReviewed": true,
+      "sourceRow": 172,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 86,
+      "id": "costume:25:f:GOTOUR_2026_B",
+      "shinyId": "shinycostume:costume:25:f:GOTOUR_2026_B",
+      "firstSeen": "2026-02-23",
+      "sub": "ヒビキの帽子（2026）",
+      "imageReviewed": true,
+      "sourceRow": 174,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 87,
+      "id": "costume:25:f:GOTOUR_2026_B_02",
+      "shinyId": "shinycostume:costume:25:f:GOTOUR_2026_B_02",
+      "firstSeen": "2026-02-23",
+      "sub": "コトネの帽子（2026）",
+      "imageReviewed": true,
+      "sourceRow": 176,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 88,
+      "id": "costume:25:f:BB_2026",
+      "shinyId": "shinycostume:costume:25:f:BB_2026",
+      "firstSeen": "2026-04-03",
+      "sub": "ベースボールシャツ（2026）",
+      "imageReviewed": true,
+      "sourceRow": 178,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 89,
+      "id": "costume:25:f:VISOR_2026",
+      "shinyId": "shinycostume:costume:25:f:VISOR_2026",
+      "firstSeen": "2026-05-12",
+      "sub": "マラソンバイザー（2026）",
+      "imageReviewed": true,
+      "sourceRow": 180,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 90,
+      "id": "costume:25:f:FOSSIL_2026",
+      "shinyId": "shinycostume:costume:25:f:FOSSIL_2026",
+      "firstSeen": "2026-05-22",
+      "sub": "発掘の帽子（2026・シカゴ）",
+      "imageReviewed": true,
+      "sourceRow": 182,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 91,
+      "id": "costume:25:f:GOFEST_2026_CAP_BLUE",
+      "shinyId": "shinycostume:costume:25:f:GOFEST_2026_CAP_BLUE",
+      "firstSeen": "2026-05-25",
+      "sub": "ミスティックの帽子（2026）",
+      "imageReviewed": true,
+      "sourceRow": 184,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 92,
+      "id": "costume:25:f:GOFEST_2026_CAP_YELLOW",
+      "shinyId": "shinycostume:costume:25:f:GOFEST_2026_CAP_YELLOW",
+      "firstSeen": "2026-05-25",
+      "sub": "インスティンクトの帽子（2026）",
+      "imageReviewed": true,
+      "sourceRow": 186,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 93,
+      "id": "costume:25:f:GOFEST_2026_CAP_RED",
+      "shinyId": "shinycostume:costume:25:f:GOFEST_2026_CAP_RED",
+      "firstSeen": "2026-05-25",
+      "sub": "ヴァーラーの帽子（2026）",
+      "imageReviewed": true,
+      "sourceRow": 188,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 94,
+      "id": "costume:25:f:ANNIVERSARY_2026",
+      "shinyId": "shinycostume:costume:25:f:ANNIVERSARY_2026",
+      "firstSeen": "2026-07-21",
+      "sub": "ウィロー博士の助手（2026）",
+      "imageReviewed": true,
+      "sourceRow": 190,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 95,
+      "id": "costume:25:f:PXP_2026",
+      "shinyId": "shinycostume:costume:25:f:PXP_2026",
+      "firstSeen": "2026-08-25",
+      "sub": "コスモッグ風宇宙服（2026）",
+      "imageReviewed": true,
+      "sourceRow": 192,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 96,
+      "id": "costume:25:f:WCS_2026",
+      "shinyId": "shinycostume:costume:25:f:WCS_2026",
+      "firstSeen": "2026-08-28",
+      "sub": "WCS2026の冠とマント",
+      "imageReviewed": true,
+      "sourceRow": 194,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 97,
+      "id": "costume:25:f:ANNIVERSARY_2026_MALAYSIA_01",
+      "shinyId": "shinycostume:costume:25:f:ANNIVERSARY_2026_MALAYSIA_01",
+      "firstSeen": "2026-09-12",
+      "sub": "ポケエキサイティング・ターコイズ（マレーシア）",
+      "imageReviewed": true,
+      "sourceRow": 196,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 98,
+      "id": "costume:25:f:K_2026_A_01",
+      "shinyId": "shinycostume:costume:25:f:K_2026_A_01",
+      "firstSeen": "2026-09-24",
+      "sub": "オレンジ色のハンボク（2026・韓国）",
+      "imageReviewed": true,
+      "sourceRow": 198,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 99,
+      "id": "costume:25:form-PIKACHU_GLASS_HELMET_2026",
+      "shinyId": "shinycostume:costume:25:form-PIKACHU_GLASS_HELMET_2026",
+      "firstSeen": "2026-10-04",
+      "sub": "宇宙飛行士のヘルメット（2026）",
+      "imageReviewed": true,
+      "sourceRow": 200,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 100,
+      "id": "costume:25:f:ANNIVERSARY_2026_TAIWAN_01",
+      "shinyId": "shinycostume:costume:25:f:ANNIVERSARY_2026_TAIWAN_01",
+      "firstSeen": "2026-10-10",
+      "sub": "ポケエキサイティング・ピンク（台湾）",
+      "imageReviewed": true,
+      "sourceRow": 202,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 101,
+      "id": "costume:25:form-PIKACHU_HALLOWEEN_2026",
+      "shinyId": "shinycostume:costume:25:form-PIKACHU_HALLOWEEN_2026",
+      "firstSeen": "2026-10-27",
+      "sub": "ハットとケープ（ハロウィン2026）",
+      "imageReviewed": true,
+      "sourceRow": 204,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 102,
+      "id": "costume:25:f:ANNIVERSARY_2026_SINGAPORE_01",
+      "shinyId": "shinycostume:costume:25:f:ANNIVERSARY_2026_SINGAPORE_01",
+      "firstSeen": "2026-11-07",
+      "sub": "ポケエキサイティング・ブルー（シンガポール、11/7開始予定）",
+      "imageReviewed": true,
+      "sourceRow": 206,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 103,
+      "id": "costume:25:f:ANNIVERSARY_2026_PHILIPPINE_01",
+      "shinyId": "shinycostume:costume:25:f:ANNIVERSARY_2026_PHILIPPINE_01",
+      "firstSeen": "2027-01-23",
+      "sub": "ポケエキサイティング・レッド（フィリピン、2027予定）",
+      "imageReviewed": true,
+      "sourceRow": 208,
+      "imageType": "embedded"
+    },
+    {
+      "rank": 104,
+      "id": "costume:25:form-PIKACHU_ANNIVERSARY_2026_THAILAND_01",
+      "shinyId": "shinycostume:costume:25:form-PIKACHU_ANNIVERSARY_2026_THAILAND_01",
+      "firstSeen": "2027-02-13",
+      "sub": "ポケエキサイティング・イエロー（タイ、2027予定）",
+      "imageReviewed": false,
+      "sourceRow": 210,
+      "imageType": "embedded"
+    }
+  ]
+}
