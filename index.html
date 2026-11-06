@@ -90,7 +90,7 @@
     <aside class="side-scroll" aria-label="ページ内スクロール"><button type="button" id="scroll-top" aria-label="ページの先頭へ" title="先頭へ">↑</button><button type="button" id="scroll-bottom" aria-label="ページの末尾へ" title="末尾へ">↓</button></aside>
     <footer><span>個人用・非公式ファンツール / データはこのブラウザ内に保存</span><span>Pokémonおよび関連名称・画像の権利は各権利者に帰属します。</span></footer>
   </div>
-  <dialog id="order-dialog" class="dialog"><div class="modal"><div class="dialog-heading"><h2>ピカチュウの並び順</h2><button type="button" class="close" id="order-close">×</button></div><p class="muted">Googleスプレッドシートの衣装名を上から順に1行1件で貼り付けます。名称が一致する項目だけ先頭から指定順に並べ、残りは初実装順で表示します。指定を解除すると初実装順へ戻ります。ここでの変更はこの端末に保存されます。</p><textarea id="pika-order-input" rows="11" style="width:100%;border:1px solid #dce5f1;border-radius:10px;padding:10px;font:inherit;font-size:13px" placeholder="例：パーティハット&#10;サンタ帽子&#10;ハロウィン帽子"></textarea><p id="order-feedback" class="feedback" aria-live="polite"></p><div class="setting-actions"><button type="button" id="order-apply" class="button primary">一致した順序を反映</button><button type="button" id="order-clear" class="button secondary">指定を解除</button></div></div></dialog>
+  <dialog id="order-dialog" class="dialog"><div class="modal"><div class="dialog-heading"><h2>ピカチュウの実装日順・手動並び替え</h2><button type="button" class="close" id="order-close">×</button></div><p class="muted">Googleスプレッドシートの衣装名を上から順に1行1件で貼り付けます。名称が一致する項目だけ先頭から指定順に並べ、残りは初実装順で表示します。指定を解除すると初実装順へ戻ります。ここでの変更はこの端末に保存されます。</p><textarea id="pika-order-input" rows="11" style="width:100%;border:1px solid #dce5f1;border-radius:10px;padding:10px;font:inherit;font-size:13px" placeholder="例：パーティハット&#10;サンタ帽子&#10;ハロウィン帽子"></textarea><p id="order-feedback" class="feedback" aria-live="polite"></p><div class="setting-actions"><button type="button" id="order-apply" class="button primary">一致した順序を反映</button><button type="button" id="order-clear" class="button secondary">指定を解除</button></div></div></dialog>
   <dialog id="settings-dialog" class="dialog"><form method="dialog" class="modal"><div class="dialog-heading"><h2>データ管理</h2><button aria-label="閉じる" class="close" value="cancel">×</button></div><p class="muted">チェック結果はこの端末のブラウザに保存されます。別端末には自動同期されません。定期的にバックアップしてください。</p><div class="setting-actions"><button id="export-json" type="button" class="button primary">バックアップを保存（JSON）</button><button id="import-json" type="button" class="button secondary">バックアップを読み込む</button><input type="file" accept=".json,application/json" id="import-file" hidden /><button id="export-csv" type="button" class="button secondary">チェック表を書き出す（CSV）</button><button id="refresh-data" type="button" class="button secondary">最新のデータを再取得</button></div><div class="divider"></div><div class="detail">入手判定：<strong>一度でも入手したことがある</strong><br>通常・フォルム・色違い：<strong>すべて独立</strong><br>各カードの「集計対象外」で達成率の分母から除外できます。</div><div class="divider"></div><button type="button" id="reset-checks" class="button danger">チェック結果を全削除</button><p id="settings-feedback" class="feedback" aria-live="polite"></p></form></dialog>
   <dialog id="add-dialog" class="dialog"><form id="add-form" class="modal"><div class="dialog-heading"><h2>項目を手動追加</h2><button type="button" id="add-close" class="close" aria-label="閉じる">×</button></div><p class="muted">データ提供元にない衣装や新しいフォルムを追加できます。</p><label class="field">カテゴリ<select id="custom-cat" required><option value="normal">通常</option><option value="forms">別フォルム</option><option value="shiny">色違い（通常）</option><option value="shinyforms">色違い（別フォルム）</option><option value="costumepika">衣装（ピカチュウ）</option><option value="shinycostumepika">色違い衣装（ピカチュウ）</option><option value="costumeother">衣装（その他）</option><option value="shinycostumeother">色違い衣装（その他）</option><option value="gender">オス・メス差分</option><option value="shinygender">色違い・オス・メス差分</option></select></label><label class="field">全国図鑑番号<input type="number" id="custom-dex" min="1" max="9999" placeholder="例：25" required /></label><label class="field">ポケモン名<input type="text" id="custom-name" maxlength="60" placeholder="例：ピカチュウ" required /></label><label class="field">フォルム／衣装の名称<input type="text" id="custom-sub" maxlength="100" placeholder="例：イベント衣装" /></label><button type="submit" class="button primary">この項目を追加</button><p id="add-feedback" class="feedback" aria-live="polite"></p></form></dialog>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -98,7 +98,7 @@
 /* Pokémon GO personal collection tracker. No accounts or analytics. */
 (() => {
   'use strict';
-  const VERSION = '2.8.1';
+  const VERSION = '2.9.0';
   const STORE_KEY = 'pogo-personal-collection-v1';
   const CACHE_KEY = 'pogo-catalog-cache-v1';
   const PAGE_SIZE = 120;
@@ -162,8 +162,8 @@
 
 
   function readStorage(){
-    try{const d=JSON.parse(localStorage.getItem(STORE_KEY)||'{}');return {owned:(d.owned&&typeof d.owned==='object')?d.owned:{}, excluded:(d.excluded&&typeof d.excluded==='object')?d.excluded:{}, custom:Array.isArray(d.custom)?d.custom:[], updated:d.updated||null, pikachuOrder:Array.isArray(d.pikachuOrder)?d.pikachuOrder.filter(x=>typeof x==='string').slice(0,500):[],migratedCostumeExclusions:Boolean(d.migratedCostumeExclusions)};}
-    catch{return {owned:{},excluded:{},custom:[],updated:null,pikachuOrder:[],migratedCostumeExclusions:false};}
+    try{const d=JSON.parse(localStorage.getItem(STORE_KEY)||'{}');return {owned:(d.owned&&typeof d.owned==='object')?d.owned:{}, excluded:(d.excluded&&typeof d.excluded==='object')?d.excluded:{}, custom:Array.isArray(d.custom)?d.custom:[], updated:d.updated||null, pikachuOrder:Array.isArray(d.pikachuOrder)?d.pikachuOrder.filter(x=>typeof x==='string').slice(0,500):[],migratedCostumeExclusions:Boolean(d.migratedCostumeExclusions),pikaManualOrder:Boolean(d.pikaManualOrder)};}
+    catch{return {owned:{},excluded:{},custom:[],updated:null,pikachuOrder:[],migratedCostumeExclusions:false,pikaManualOrder:false};}
   }
   function persist(){
     state.updated=new Date().toISOString();
@@ -490,7 +490,7 @@
     if(a.dex!==b.dex)return a.dex-b.dex;
     if(a.category!==b.category)return CATS.findIndex(c=>c.id===a.category)-CATS.findIndex(c=>c.id===b.category);
     if(a.category==='costumepika'||a.category==='shinycostumepika'){
-      const position=x=>state.pikachuOrder?.indexOf(x.baseCostumeId||x.id)??-1;
+      const position=x=>state.pikaManualOrder?(state.pikachuOrder?.indexOf(x.baseCostumeId||x.id)??-1):-1;
       const pa=position(a),pb=position(b);
       if(pa!==pb){if(pa===-1)return 1;if(pb===-1)return -1;return pa-pb;}
       return (a.orderRank??9999)-(b.orderRank??9999)||a.sub.localeCompare(b.sub,'ja');
@@ -716,9 +716,9 @@
       ?`<div class="costume-images"><div class="sprite"><small>♂ オス</small>${genderSprite(x.maleFile,x.name+(shiny?' 色違い':'')+' オス',x.dex,'male',shiny)}</div><div class="sprite"><small>♀ メス</small>${genderSprite(x.femaleFile,x.name+(shiny?' 色違い':'')+' メス',x.dex,'female',shiny)}</div></div>`
       :`<div class="sprite">${spriteTag(x,shiny)}</div>`;
     const sub=x.formKind==='regional'?'リージョン：'+x.sub:x.sub;
-    const dateDetail=isCostume(x.category)&&x.firstReleaseYear?
-      '<span class="costume-date">初実装：'+(x.firstReleaseDate?
-        esc(x.firstReleaseDate.replaceAll('-','/')):esc(x.firstReleaseYear+'年（詳細日付は精査中）'))+'</span>':'';
+    const dateDetail=isCostume(x.category)&&x.firstReleaseDate?
+      '<span class="costume-date">'+(x.releaseDate?'登場予定：':'初実装：')+
+        esc(x.firstReleaseDate.replaceAll('-','/'))+'</span>':'';
     const inner=`${pictures}<span class="card-name">${esc(x.name)}</span><span class="card-sub">${esc(sub||' ')}</span>${dateDetail}`;
     if(gender){
       const male=Boolean(state.owned[x.id+':male']),female=Boolean(state.owned[x.id+':female']);
@@ -821,8 +821,8 @@
         if(!d||typeof d!=='object'||Array.isArray(d)||!d.owned||typeof d.owned!=='object')throw new Error('形式が違います');
         if(!window.confirm('現在のチェック結果を読み込んだバックアップで置き換えます。よろしいですか？'))return;
         const clean=(obj)=>Object.fromEntries(Object.entries(obj).filter(([k,v])=>typeof k==='string'&&k.length<300&&v===true).slice(0,30000));
-        state={owned:clean(d.owned),excluded:clean(d.excluded||{}),custom:(Array.isArray(d.custom)?d.custom:[]).filter(x=>x&&CATS.some(c=>c.id===x.category)&&Number(x.dex)>0&&Number(x.dex)<10000&&typeof x.name==='string').slice(0,3000),updated:d.updated||null,pikachuOrder:Array.isArray(d.pikachuOrder)?d.pikachuOrder.filter(x=>typeof x==='string').slice(0,500):[],migratedCostumeExclusions:Boolean(d.migratedCostumeExclusions)};
-        addCustomToCatalog(data);ensureShinyCostumes(data);migrateFormerFormChecks(data);migrateCostumeExclusions(data);persist();render();message('バックアップを復元しました');
+        state={owned:clean(d.owned),excluded:clean(d.excluded||{}),custom:(Array.isArray(d.custom)?d.custom:[]).filter(x=>x&&CATS.some(c=>c.id===x.category)&&Number(x.dex)>0&&Number(x.dex)<10000&&typeof x.name==='string').slice(0,3000),updated:d.updated||null,pikachuOrder:Array.isArray(d.pikachuOrder)?d.pikachuOrder.filter(x=>typeof x==='string').slice(0,500):[],migratedCostumeExclusions:Boolean(d.migratedCostumeExclusions),pikaManualOrder:Boolean(d.pikaManualOrder)};
+        addCustomToCatalog(data);ensureShinyCostumes(data);migrateFormerFormChecks(data);migrateCostumeExclusions(data);data.sort(sortEntries);persist();render();message('バックアップを復元しました');
       }catch(e){message('JSONの読み込みに失敗しました：'+e.message);}
     };reader.onerror=()=>message('ファイルを読み込めませんでした');reader.readAsText(file);
   }
@@ -879,10 +879,10 @@
         if(candidate){order.push(candidate.id);used.add(candidate.id);}else misses.push(original);
       }
       if(!order.length){$('order-feedback').textContent='一致する衣装名がありません。表示名を確認してください。';return;}
-      state.pikachuOrder=order;data.sort(sortEntries);persist();render();
+      state.pikachuOrder=order;state.pikaManualOrder=true;data.sort(sortEntries);persist();render();
       $('order-feedback').textContent=`${order.length}件の並び順を反映しました。${misses.length?' 未一致：'+misses.slice(0,4).join('、'):''}`;
     });
-    $('order-clear').addEventListener('click',()=>{state.pikachuOrder=[];data.sort(sortEntries);persist();render();$('order-feedback').textContent='指定した並び順を解除しました。';});
+    $('order-clear').addEventListener('click',()=>{state.pikachuOrder=[];state.pikaManualOrder=false;data.sort(sortEntries);persist();render();$('order-feedback').textContent='指定した並び順を解除しました。';});
     $('settings-open').addEventListener('click',()=>$('settings-dialog').showModal());
     $('bulk-select').addEventListener('click',()=>bulkUpdate(true));
     $('bulk-clear').addEventListener('click',()=>bulkUpdate(false));
