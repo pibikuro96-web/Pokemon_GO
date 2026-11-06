@@ -83,7 +83,7 @@
       <div class="cards" id="cards" aria-live="polite"></div>
       <div id="empty" class="empty" hidden><div>◌</div><strong>該当するポケモンがありません</strong><span>検索条件・フィルタを変更してください。</span></div>
       <button type="button" class="button load-more" id="load-more" hidden>さらに表示する</button>
-      <p class="helper" id="catalog-help">※ 実装情報は2026年11月7日時点の確認結果です。公開データをもとにした判定のため、未確認のフォルム・衣装は引き続き調査対象です。※ 通常表示では実装確認済みのみを集計します。フォルム・性差・衣装のタブでは未実装・確認中もすべて一覧に掲載します（通常の達成率には含まれません）。「未実装・未確認も表示」をオンにすると、その項目も分母・入手済み数に加え、チェックの操作で進捗バーが変動します。衣装の色違いも確認中のものはオンのときだけ集計します。色違い未解禁の衣装は進捗から除外します。※ Googleドライブの図鑑スクリーンショットから画像を切り出しました。画像不足は未所持を意味せず、未実装・未解禁や撮影範囲外も含みます。「不足画像CSV」で図鑑番号別に確認できます。※ 「全て選択／全て解除」は現在のタブで検索・絞り込みに一致する全項目（続きを含む）に適用します。オス・メスはそれぞれ独立、衣装は通常色・色違いを別タブで管理します。フォルム・衣装にはゲームデータなどを基にした候補を含みます。実装状況や色違いの解禁状況は、個々に検証済みとは限りません。</p>
+      <p class="helper" id="catalog-help">※ 実装情報は2026年11月7日時点の確認結果です。公開データをもとにした判定のため、未確認のフォルム・衣装は引き続き調査対象です。※ 通常表示では実装確認済みのみを集計します。性差・衣装タブでは未実装・確認中も一覧に掲載します。別フォルムではチェックをオンにした場合のみ表示します（通常の達成率には含まれません）。「未実装・未確認も表示」をオンにすると、その項目も分母・入手済み数に加え、チェックの操作で進捗バーが変動します。衣装の色違いも確認中のものはオンのときだけ集計します。色違い未解禁の衣装は進捗から除外します。※ Googleドライブの図鑑スクリーンショットから画像を切り出しました。画像不足は未所持を意味せず、未実装・未解禁や撮影範囲外も含みます。「不足画像CSV」で図鑑番号別に確認できます。※ 「全て選択／全て解除」は現在のタブで検索・絞り込みに一致する全項目（続きを含む）に適用します。オス・メスはそれぞれ独立、衣装は通常色・色違いを別タブで管理します。フォルム・衣装にはゲームデータなどを基にした候補を含みます。実装状況や色違いの解禁状況は、個々に検証済みとは限りません。</p>
     </main>
     <aside class="side-scroll" aria-label="ページ内スクロール"><button type="button" id="scroll-top" aria-label="ページの先頭へ" title="先頭へ">↑</button><button type="button" id="scroll-bottom" aria-label="ページの末尾へ" title="末尾へ">↓</button></aside>
     <footer><span>個人用・非公式ファンツール / データはこのブラウザ内に保存</span><span>Pokémonおよび関連名称・画像の権利は各権利者に帰属します。</span></footer>
@@ -96,18 +96,18 @@
 /* Pokémon GO personal collection tracker. No accounts or analytics. */
 (() => {
   'use strict';
-  const VERSION = '2.6.0';
+  const VERSION = '2.7.0';
   const STORE_KEY = 'pogo-personal-collection-v1';
   const CACHE_KEY = 'pogo-catalog-cache-v1';
   const PAGE_SIZE = 120;
-  const alwaysVisible=cat=>['forms','shinyforms','gender','shinygender','costumepika','shinycostumepika','costumeother','shinycostumeother'].includes(cat);
-  const pageLimitFor=cat=>alwaysVisible(cat)?Number.MAX_SAFE_INTEGER:PAGE_SIZE;
+  const alwaysVisible=cat=>['gender','shinygender','costumepika','shinycostumepika','costumeother','shinycostumeother'].includes(cat);
+  const pageLimitFor=cat=>['forms','shinyforms'].includes(cat)||alwaysVisible(cat)?Number.MAX_SAFE_INTEGER:PAGE_SIZE;
   const percent=(owned,total)=>total?Math.round(owned/total*10000)/100:0;
   const CATS = [
     {id:'normal', title:'通常ポケモン', short:'通常', subtitle:'全国図鑑', note:'全国図鑑番号ごとに独立してチェックします。'},
-    {id:'forms', title:'別フォルム・リージョン',short:'フォルム',subtitle:'姿・地域違い',note:'アンノーン・リージョンフォームなどを通常種と独立して管理します。'},
+    {id:'forms', title:'別フォルム・リージョン',short:'フォルム',subtitle:'姿・地域違い',note:'通常の姿を重複登録しない別フォルムです。未実装・確認中は上部の表示切替をオンにしたときだけ表示します。'},
     {id:'shiny',title:'色違い・通常',short:'色違い',subtitle:'通常の色違い',note:'通常種の色違いを通常種とは独立してチェックします。'},
-    {id:'shinyforms',title:'色違い・別フォルム',short:'色違いフォルム',subtitle:'姿・地域違い',note:'フォルムごとの色違いもそれぞれ独立しています。'},
+    {id:'shinyforms',title:'色違い・別フォルム',short:'色違いフォルム',subtitle:'姿・地域違い',note:'フォルムの色違いは独立してチェックします。未実装・未解禁・確認中は上部の表示切替をオンにしたときだけ表示します。'},
     {id:'gender',title:'オス・メス差分',short:'オス・メス',subtitle:'性差のある姿',note:'本編で性別によって姿が違うポケモンを、オスとメス別々にチェックします。'},
     {id:'shinygender',title:'色違い・オス・メス差分',short:'色違いオス・メス',subtitle:'色違いの性差',note:'色違いのオスとメスを別々に管理します。通常色のオス・メスとは独立してチェックできます。'},
     {id:'costumepika',title:'衣装・ピカチュウ',short:'衣装ピカチュウ',subtitle:'通常色',note:'ピカチュウ衣装104候補（登場済み101・登場予定3）の通常色を管理します。すべて表示します。'},
