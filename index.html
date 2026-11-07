@@ -21,6 +21,7 @@
 .summary-grid{grid-template-columns:repeat(auto-fit,minmax(145px,1fr))}
 .costume-foot .mini-check.gender-female.checked{background:#f4e7fa;border-color:#d49de0;color:#854492}
 .costume-foot .mini-check:disabled{opacity:.42;cursor:not-allowed}
+.gender-completion{justify-content:center;font-size:10px;font-weight:750;gap:5px}
 
 .side-scroll{position:fixed;right:max(10px,env(safe-area-inset-right));bottom:calc(90px + env(safe-area-inset-bottom));z-index:50;display:flex;flex-direction:column;gap:9px}
 .side-scroll button{width:44px;height:44px;border-radius:50%;border:1px solid #b7cbe7;background:#fff;box-shadow:0 3px 12px #122c5226;color:#1b55a4;font-weight:900;font-size:23px;line-height:1}
@@ -102,7 +103,7 @@
 /* Pokémon GO personal collection tracker. No accounts or analytics. */
 (() => {
   'use strict';
-  const VERSION = '2.9.10';
+  const VERSION = '2.9.11';
   const STORE_KEY = 'pogo-personal-collection-v1';
   const CACHE_KEY = 'pogo-catalog-cache-v1';
   const PAGE_SIZE = 120;
@@ -871,7 +872,8 @@
     const inner=`${pictures}<span class="card-name">${esc(x.name)}</span><span class="card-sub">${esc(sub||' ')}</span>${dateDetail}`;
     if(gender){
       const male=Boolean(state.owned[x.id+':male']),female=Boolean(state.owned[x.id+':female']);
-      return `<article class="pokemon-card ${ownClass}" data-id="${unique}">${main}<div class="card-main">${inner}</div><div class="costume-foot"><button type="button" class="mini-check ${male?'checked':''}" data-id="${unique}" data-action="male" aria-pressed="${male}">${male?'✓ ':''}${shiny?'★':''}♂ オス</button><button type="button" class="mini-check gender-female ${female?'checked':''}" data-id="${unique}" data-action="female" aria-pressed="${female}">${female?'✓ ':''}${shiny?'★':''}♀ メス</button></div></article>`;
+      const obtained=Number(male)+Number(female);
+      return `<article class="pokemon-card ${ownClass}" data-id="${unique}">${main}<div class="card-main">${inner}</div><div class="costume-foot"><button type="button" class="mini-check ${male?'checked':''}" data-id="${unique}" data-action="male" aria-pressed="${male}">${male?'✓ ':''}${shiny?'★':''}♂ オス</button><button type="button" class="mini-check gender-female ${female?'checked':''}" data-id="${unique}" data-action="female" aria-pressed="${female}">${female?'✓ ':''}${shiny?'★':''}♀ メス</button></div><div class="card-foot gender-completion"><span class="captured-dot">${yes?'✓':'○'}</span>${yes?'入手済み':'未入手'}（${obtained}/2）</div></article>`;
     }
     const noShiny=isShinyCostume(x.category)&&x.shinyAvailable===false;
     return `<article class="pokemon-card ${ownClass}" data-id="${unique}">${main}<button type="button" class="card-main" data-action="check" data-id="${unique}" aria-pressed="${yes}" aria-label="${esc(x.name)} ${esc(x.sub)} ${yes?'入手済み':'未入手'}" ${noShiny?'disabled title="色違い未解禁のためチェックできません"':''}>${inner}</button><div class="card-foot"><span class="captured-dot">${noShiny?'–':yes?'✓':'○'}</span>${noShiny?'色違い未解禁':yes?'入手済み':'未入手'}${isShinyCostume(x.category)?' ★色違い':''}</div></article>`;
@@ -886,8 +888,9 @@
       if(status==='excluded')return Boolean(x.mirrorOf||state.excluded[x.id]);
       if(x.mirrorOf)return status==='all';
       if(state.excluded[x.id])return status==='all';
-      if(status==='owned'&&!isOwned(x))return false;
-      if(status==='missing'&&isOwned(x))return false;
+      const completed=isOwned(x); // Gender entries count as owned only when both male and female are checked.
+      if(status==='owned'&&!completed)return false;
+      if(status==='missing'&&completed)return false;
       return true;
     });
   }
@@ -929,7 +932,7 @@
     if(r.length>visibleLimit)els.loadMore.textContent=`さらに表示する （${visibleLimit.toLocaleString()} / ${r.length.toLocaleString()} 件）`;
   }
   function render(){renderSummary();renderCards();}
-  function changeCat(cat){if(!CATS.some(c=>c.id===cat))return;active=cat;visibleLimit=pageLimitFor(cat);els.formType.hidden=!(cat==='forms'||cat==='shinyforms');$('order-open').hidden=cat!=='costumepika'&&cat!=='shinycostumepika';render();}
+  function changeCat(cat){if(!CATS.some(c=>c.id===cat))return;active=cat;visibleLimit=pageLimitFor(cat);els.formType.hidden=!(cat==='forms'||cat==='shinyforms');$('order-open').hidden=cat!=='costumepika'&&cat!=='shinycostumepika';els.ownership.querySelector('option[value="missing"]').textContent=isGender(cat)?'未入手のみ（どちらか不足）':'未入手のみ';els.ownership.querySelector('option[value="owned"]').textContent=isGender(cat)?'入手済みのみ（両方）':'入手済みのみ';render();}
   function toggleOwnership(id,kind){
     const x=data.find(r=>r.id===id);if(!x||x.mirrorOf)return;
     if(isDual(x.category)&&!['male','female'].includes(kind))return;
