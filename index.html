@@ -57,7 +57,8 @@
 @media(max-width:640px){.costume-date{font-size:8px}}
 
 /* Image display: native transparent Pokémon GO PNGs, with no atlas or background artwork. */
-.sprite img,.costume-images .sprite img{display:block;background:transparent;border:0;box-shadow:none;filter:none;mix-blend-mode:normal;object-fit:contain;image-rendering:auto}
+.sprite,.costume-images .sprite{background:transparent;background-image:none}
+.sprite img,.costume-images .sprite img{display:block;background:transparent;background-image:none;border:0;box-shadow:none;filter:none;mix-blend-mode:normal;object-fit:contain;object-position:center;image-rendering:auto}
 </style>
 </head>
 <body>
@@ -103,7 +104,7 @@
 /* Pokémon GO personal collection tracker. No accounts or analytics. */
 (() => {
   'use strict';
-  const VERSION = '2.9.23';
+  const VERSION = '2.9.24';
   const STORE_KEY = 'pogo-personal-collection-v1';
   const CACHE_KEY = 'pogo-catalog-cache-v1';
   const PAGE_SIZE = 120;
@@ -717,10 +718,14 @@
       migrateFormerFormChecks(unique);
       migrateCostumeExclusions(unique);
       data=[...unique,...makeRepresentativeMirrors(unique,pack)].sort(sortEntries);
-      sourceStatus=GO_FILES.size?'ready':'partial';
-      if(GO_FILES.size){
-        els.status.className='notice success';
-        els.status.textContent='図鑑とPokémon GOの透過PNG画像を読み込みました。該当する姿・衣装の画像がない場合は別の姿で代用せず「GO画像未取得」と表示します。';
+      sourceStatus=GO_FILES.size&&(GO_BASE||GO_RAW_BASE)?'ready':'partial';
+      if(sourceStatus==='ready'){
+        const released=unique.filter(x=>releaseOf(x)==='released'&&!x.mirrorOf);
+        const missing=released.filter(x=>!hasGoPortrait(x));
+        els.status.className=missing.length?'notice warn':'notice success';
+        els.status.textContent=missing.length
+          ?'Pokémon GO透過画像の参照先を確認しました。実装確認済み'+released.length.toLocaleString()+'項目のうち、正確なGO画像が未取得の項目は'+missing.length.toLocaleString()+'件です（別の姿で代用しません）。'
+          :'Pokémon GO透過画像の参照先を確認しました。実装確認済み'+released.length.toLocaleString()+'項目はGO画像を使用します（性差は両方確認済み）。';
       }else{
         els.status.className='notice warn';
         els.status.textContent='図鑑は読み込めましたが、Pokémon GO画像索引を取得できません。画像は代用せず未取得として表示します。';
@@ -767,6 +772,16 @@
   function spriteTag(x,shiny){
     const candidates=imageCandidates(x,shiny);
     return renderImageOptions(candidates,x.name+' '+x.sub+(shiny?' 色違い':''));
+  }
+  // Check both genders and exact costume artwork against the pinned GO asset manifest.
+  // Reference and HOME artwork never counts toward this integrity check.
+  function hasGoPortrait(x){
+    const shiny=['shiny','shinyforms','shinygender','shinycostumepika','shinycostumeother'].includes(x.category);
+    if(isGender(x.category)){
+      const ending=shiny?'.s.icon.png':'.icon.png';
+      return [x.maleFile,x.femaleFile].every(file=>file&&GO_FILES.has(String(file).replace(/(?:\.s)?\.icon\.png$/,ending)));
+    }
+    return imageCandidates(x,shiny).length>0;
   }
   function makeCard(x){
     const gender=isGender(x.category),excluded=Boolean(state.excluded[x.id]),yes=isOwned(x);
