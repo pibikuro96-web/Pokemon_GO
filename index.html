@@ -104,9 +104,10 @@
 /* Pokémon GO personal collection tracker. No accounts or analytics. */
 (() => {
   'use strict';
-  const VERSION = '2.9.25';
+  const VERSION = '2.9.26';
   const STORE_KEY = 'pogo-personal-collection-v1';
   const CACHE_KEY = 'pogo-catalog-cache-v1';
+  const VIEW_KEY = 'pogo-view-position-v1';
   const PAGE_SIZE = 120;
   const showAllCardsAtOnce=cat=>['gender','shinygender','costumepika','shinycostumepika','costumeother','shinycostumeother'].includes(cat);
   const pageLimitFor=cat=>['forms','shinyforms'].includes(cat)||showAllCardsAtOnce(cat)?Number.MAX_SAFE_INTEGER:PAGE_SIZE;
@@ -155,6 +156,54 @@
     if(isGender(x.category))return [x.id]; // One completion slot per species: both sexes are required.
     if(isShinyCostume(x.category)&&x.shinyAvailable===false)return [];
     return [ownedKey(x)];
+  }
+  // The current browser tab retains its place when the page is reloaded.
+  // Store only view preferences here; collection checkboxes remain in localStorage.
+  function readViewState(){
+    try{
+      const saved=JSON.parse(sessionStorage.getItem(VIEW_KEY)||'null');
+      return saved&&typeof saved==='object'&&!Array.isArray(saved)?saved:null;
+    }catch{return null;}
+  }
+  const savedView=readViewState();
+  let viewRestorePending=Boolean(savedView),viewTouchedBeforeRestore=false,scrollSaveQueued=false;
+  if(savedView&&'scrollRestoration' in history)history.scrollRestoration='manual';
+  function saveViewState(){
+    if(viewRestorePending)return;
+    try{
+      sessionStorage.setItem(VIEW_KEY,JSON.stringify({
+        active,visibleLimit,search:els.search.value,generation:els.generation.value,
+        ownership:els.ownership.value,formType:els.formType.value,
+        showUnreleased:els.showUnreleased.checked,scrollY:window.scrollY
+      }));
+    }catch{/* Private mode or blocked session storage: the checker remains usable. */}
+  }
+  function applySavedView(){
+    if(!savedView)return;
+    const optionValid=(el,v)=>Array.from(el.options).some(o=>o.value===v);
+    if(CATS.some(c=>c.id===savedView.active))active=savedView.active;
+    if(typeof savedView.search==='string')els.search.value=savedView.search.slice(0,200);
+    for(const [el,v] of [[els.generation,savedView.generation],[els.ownership,savedView.ownership],[els.formType,savedView.formType]])
+      if(optionValid(el,v))el.value=v;
+    els.showUnreleased.checked=savedView.showUnreleased===true;
+    const limit=Number(savedView.visibleLimit);
+    visibleLimit=pageLimitFor(active)===Number.MAX_SAFE_INTEGER?Number.MAX_SAFE_INTEGER:
+      Number.isFinite(limit)?Math.max(PAGE_SIZE,Math.min(10000,Math.floor(limit))):PAGE_SIZE;
+    els.formType.hidden=!['forms','shinyforms'].includes(active);
+    $('order-open').hidden=!['costumepika','shinycostumepika'].includes(active);
+    els.ownership.querySelector('option[value="missing"]').textContent=isGender(active)?'未入手のみ（どちらか不足）':'未入手のみ';
+    els.ownership.querySelector('option[value="owned"]').textContent=isGender(active)?'入手済みのみ（両方）':'入手済みのみ';
+  }
+  function finishViewRestore(){
+    if(!viewRestorePending)return;
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      if(!viewTouchedBeforeRestore){
+        const wanted=Number(savedView.scrollY);
+        if(Number.isFinite(wanted)&&wanted>=0)window.scrollTo(0,wanted);
+      }
+      viewRestorePending=false;
+      saveViewState();
+    }));
   }
   let state=readStorage();
   let active='normal', visibleLimit=PAGE_SIZE, data=[], sourceStatus='loading', toastTimer=0;
@@ -856,7 +905,7 @@
     $('empty').hidden=Boolean(r.length);els.loadMore.hidden=r.length<=visibleLimit;
     if(r.length>visibleLimit)els.loadMore.textContent=`さらに表示する （${visibleLimit.toLocaleString()} / ${r.length.toLocaleString()} 件）`;
   }
-  function render(){renderSummary();renderCards();}
+  function render(){renderSummary();renderCards();saveViewState();}
   function changeCat(cat){if(!CATS.some(c=>c.id===cat))return;
     // Do not carry an old region, owned-only, or regional-form filter into another category.
     // In particular, a previous 'regional only' selection hid all Furfrou trims in shinyforms.
@@ -937,10 +986,10 @@
         img.parentElement.classList.add('no-art');
       }
     },true);
-    const reset=()=>{visibleLimit=pageLimitFor(active);renderCards();};
+    const reset=()=>{visibleLimit=pageLimitFor(active);renderCards();saveViewState();};
     els.search.addEventListener('input',reset);els.generation.addEventListener('change',reset);els.formType.addEventListener('change',reset);els.ownership.addEventListener('change',reset);
     els.showUnreleased.addEventListener('change',()=>{visibleLimit=pageLimitFor(active);render();});
-    els.loadMore.addEventListener('click',()=>{visibleLimit+=PAGE_SIZE;renderCards();});
+    els.loadMore.addEventListener('click',()=>{visibleLimit+=PAGE_SIZE;renderCards();saveViewState();});
     $('order-open').addEventListener('click',()=>{$('pika-order-input').value=data.filter(x=>x.category==='costumepika').map(x=>x.sub).join('\n');$('order-dialog').showModal();});
     $('order-close').addEventListener('click',()=>$('order-dialog').close());
     $('order-apply').addEventListener('click',()=>{
@@ -969,7 +1018,20 @@
     $('reset-checks').addEventListener('click',()=>{if(!window.confirm('すべての入手チェック・集計除外設定を削除します。手動追加項目は残ります。よろしいですか？'))return;state.owned={};state.excluded={};persist();render();message('チェックを初期化しました');});
     for(const dlg of [$('settings-dialog'),$('order-dialog')])dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close();});
   }
-  bindEvents();data=fallback();render();loadData();
+  // A user interaction during asynchronous loading takes priority over a saved position.
+  const interruptRestore=()=>{
+    if(viewRestorePending){viewTouchedBeforeRestore=true;viewRestorePending=false;saveViewState();}
+  };
+  for(const eventName of ['pointerdown','touchstart','wheel','keydown'])
+    window.addEventListener(eventName,interruptRestore,{passive:true,once:true});
+  window.addEventListener('scroll',()=>{
+    if(viewRestorePending||scrollSaveQueued)return;
+    scrollSaveQueued=true;
+    requestAnimationFrame(()=>{scrollSaveQueued=false;saveViewState();});
+  },{passive:true});
+  window.addEventListener('pagehide',saveViewState);
+  applySavedView();
+  bindEvents();data=fallback();render();loadData().finally(finishViewRestore);
 })();
 
 </script>
