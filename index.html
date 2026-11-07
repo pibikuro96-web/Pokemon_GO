@@ -71,7 +71,7 @@
     <div class="notice" id="data-status" role="status"><span class="pulse"></span> ポケモンのデータを読み込んでいます…</div>
     <section class="summary-grid" id="summary-grid" aria-label="カテゴリ別の達成状況"></section>
     <main class="workspace">
-      <div class="workspace-top"><div><div class="eyebrow dark">YOUR COLLECTION</div><h2>コンプチェッカー</h2></div><div class="workspace-actions"><button type="button" class="button secondary" id="order-open" hidden>ピカチュウ順序変更</button><button type="button" class="button secondary" id="bulk-select" title="現在の絞り込みに一致する全項目を入手済みにする">✓ 全て選択</button><button type="button" class="button secondary" id="bulk-clear" title="現在の絞り込みに一致する全項目のチェックを解除">全て解除</button><a class="button secondary" href="./missing-pokemon.csv" download="pokemon-go-missing-images.csv" title="Googleドライブにある図鑑画像で未確認の230匹の一覧">不足画像CSV（230種）</a><a class="button secondary" href="./pika-costume-audit.csv" download="pika-costume-audit.csv" title="初実装順にピカチュウ衣装104種類と色違いを確認">衣装104件の精査CSV</a><a class="button secondary" href="./form-audit.csv" download="form-audit.csv" title="125種族・335種類の収集対象と65種類の代表姿（対象外）を照合">フォルム400件（うち対象外65）の精査CSV</a><button type="button" class="button secondary" id="add-open">＋ 項目を追加</button></div></div>
+      <div class="workspace-top"><div><div class="eyebrow dark">YOUR COLLECTION</div><h2>コンプチェッカー</h2></div><div class="workspace-actions"><button type="button" class="button secondary" id="order-open" hidden>ピカチュウ順序変更</button><button type="button" class="button secondary" id="bulk-select" title="現在の絞り込みに一致する全項目を入手済みにする">✓ 全て選択</button><button type="button" class="button secondary" id="bulk-clear" title="現在の絞り込みに一致する全項目のチェックを解除">全て解除</button><a class="button secondary" href="./missing-pokemon.csv" download="pokemon-go-missing-images.csv" title="Googleドライブにある図鑑画像で未確認の230匹の一覧">不足画像CSV（230種）</a><a class="button secondary" href="./pika-costume-audit.csv" download="pika-costume-audit.csv" title="初実装順にピカチュウ衣装104種類と色違いを確認">衣装104件の精査CSV</a><a class="button secondary" href="./form-audit.csv" download="form-audit.csv" title="125種族・334種類の収集対象と59種類の代表姿（対象外）を照合">フォルム393件（うち対象外59）の精査CSV</a><button type="button" class="button secondary" id="add-open">＋ 項目を追加</button></div></div>
       <nav class="tabs" id="category-tabs" aria-label="カテゴリ切り替え"></nav>
       <section class="controls" aria-label="表示条件">
         <div class="search-wrap"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="ポケモン名・図鑑番号・フォルム名で検索" autocomplete="off" aria-label="検索" /></div>
@@ -102,7 +102,7 @@
 /* Pokémon GO personal collection tracker. No accounts or analytics. */
 (() => {
   'use strict';
-  const VERSION = '2.9.7';
+  const VERSION = '2.9.8';
   const STORE_KEY = 'pogo-personal-collection-v1';
   const CACHE_KEY = 'pogo-catalog-cache-v1';
   const PAGE_SIZE = 120;
@@ -166,8 +166,8 @@
 
 
   function readStorage(){
-    try{const d=JSON.parse(localStorage.getItem(STORE_KEY)||'{}');return {owned:(d.owned&&typeof d.owned==='object')?d.owned:{}, excluded:(d.excluded&&typeof d.excluded==='object')?d.excluded:{}, custom:Array.isArray(d.custom)?d.custom:[], updated:d.updated||null, pikachuOrder:Array.isArray(d.pikachuOrder)?d.pikachuOrder.filter(x=>typeof x==='string').slice(0,500):[],migratedCostumeExclusions:Boolean(d.migratedCostumeExclusions),migratedRepresentativeSwapV295:Boolean(d.migratedRepresentativeSwapV295),migratedPumpkinBaseV296:Boolean(d.migratedPumpkinBaseV296),pikaManualOrder:Boolean(d.pikaManualOrder)};}
-    catch{return {owned:{},excluded:{},custom:[],updated:null,pikachuOrder:[],migratedCostumeExclusions:false,migratedRepresentativeSwapV295:false,migratedPumpkinBaseV296:false,pikaManualOrder:false};}
+    try{const d=JSON.parse(localStorage.getItem(STORE_KEY)||'{}');return {owned:(d.owned&&typeof d.owned==='object')?d.owned:{}, excluded:(d.excluded&&typeof d.excluded==='object')?d.excluded:{}, custom:Array.isArray(d.custom)?d.custom:[], updated:d.updated||null, pikachuOrder:Array.isArray(d.pikachuOrder)?d.pikachuOrder.filter(x=>typeof x==='string').slice(0,500):[],migratedCostumeExclusions:Boolean(d.migratedCostumeExclusions),migratedRepresentativeSwapV295:Boolean(d.migratedRepresentativeSwapV295),migratedPumpkinBaseV296:Boolean(d.migratedPumpkinBaseV296),migratedMiniorRedV298:Boolean(d.migratedMiniorRedV298),pikaManualOrder:Boolean(d.pikaManualOrder)};}
+    catch{return {owned:{},excluded:{},custom:[],updated:null,pikachuOrder:[],migratedCostumeExclusions:false,migratedRepresentativeSwapV295:false,migratedPumpkinBaseV296:false,migratedMiniorRedV298:false,pikaManualOrder:false};}
   }
   function persist(){
     state.updated=new Date().toISOString();
@@ -571,6 +571,27 @@
     state.migratedPumpkinBaseV296=true;
     persist();
   }
+
+  // v2.9.8: the National Dex Minior illustration changes from green to red.
+  // The old National Dex check represented green, so migrate it to the green form instead
+  // of silently assigning it to the not-yet-released red core.
+  function migrateMiniorRedV298(){
+    if(state.migratedMiniorRedV298)return;
+    const swaps=[
+      ['normal:774','form:774:MINIOR_GREEN','form:774:MINIOR_RED'],
+      ['shiny:774','shinyform:774:MINIOR_GREEN','shinyform:774:MINIOR_RED']
+    ];
+    for(const bucket of [state.owned,state.excluded]){
+      for(const [base,green,red] of swaps){
+        const baseFlag=Boolean(bucket[base]),greenFlag=Boolean(bucket[green]),redFlag=Boolean(bucket[red]);
+        delete bucket[base];delete bucket[green];delete bucket[red];
+        if(baseFlag||greenFlag)bucket[green]=true;
+        if(redFlag)bucket[base]=true;
+      }
+    }
+    state.migratedMiniorRedV298=true;
+    persist();
+  }
   function migrateFormerFormChecks(rows){
     let changed=false;
     for(const x of rows.filter(r=>r.category==='normal'||r.category==='shiny'))
@@ -687,6 +708,7 @@
       migrateLegacyFormChecks(unique);
       migrateRepresentativeFormChecks();
       migratePumpkinBaseV296();
+      migrateMiniorRedV298();
       migrateFormerFormChecks(unique);
       migrateCostumeExclusions(unique);
       data=[...unique,...makeRepresentativeMirrors(unique,pack)].sort(sortEntries);
@@ -758,7 +780,7 @@
   function localAtlasSprite(x,shiny){
     if(!LOCAL_ATLAS_INFO||!['normal','shiny'].includes(x.category))return null;
     // Respect explicitly selected default-form images in the National Dex; the atlas may show an older representative.
-    if([201,666,710,711].includes(x.dex)&&x.goFile)return null;
+    if([201,666,710,711,774].includes(x.dex)&&x.goFile)return null;
     const missing=shiny?LOCAL_ATLAS_INFO.shinyMissing:LOCAL_ATLAS_INFO.normalMissing;
     if(!Array.isArray(missing)||missing.includes(x.dex)||x.dex<1||x.dex>1025)return null;
     const atlas=shiny?LOCAL_ATLAS_INFO.shiny:LOCAL_ATLAS_INFO.normal;
@@ -908,8 +930,8 @@
         if(!d||typeof d!=='object'||Array.isArray(d)||!d.owned||typeof d.owned!=='object')throw new Error('形式が違います');
         if(!window.confirm('現在のチェック結果を読み込んだバックアップで置き換えます。よろしいですか？'))return;
         const clean=(obj)=>Object.fromEntries(Object.entries(obj).filter(([k,v])=>typeof k==='string'&&k.length<300&&v===true).slice(0,30000));
-        state={owned:clean(d.owned),excluded:clean(d.excluded||{}),custom:(Array.isArray(d.custom)?d.custom:[]).filter(x=>x&&CATS.some(c=>c.id===x.category)&&Number(x.dex)>0&&Number(x.dex)<10000&&typeof x.name==='string').slice(0,3000),updated:d.updated||null,pikachuOrder:Array.isArray(d.pikachuOrder)?d.pikachuOrder.filter(x=>typeof x==='string').slice(0,500):[],migratedCostumeExclusions:Boolean(d.migratedCostumeExclusions),migratedRepresentativeSwapV295:Boolean(d.migratedRepresentativeSwapV295),migratedPumpkinBaseV296:Boolean(d.migratedPumpkinBaseV296),pikaManualOrder:Boolean(d.pikaManualOrder)};
-        addCustomToCatalog(data);ensureShinyCostumes(data);migrateRepresentativeFormChecks();migratePumpkinBaseV296();migrateFormerFormChecks(data);migrateCostumeExclusions(data);data.sort(sortEntries);persist();render();message('バックアップを復元しました');
+        state={owned:clean(d.owned),excluded:clean(d.excluded||{}),custom:(Array.isArray(d.custom)?d.custom:[]).filter(x=>x&&CATS.some(c=>c.id===x.category)&&Number(x.dex)>0&&Number(x.dex)<10000&&typeof x.name==='string').slice(0,3000),updated:d.updated||null,pikachuOrder:Array.isArray(d.pikachuOrder)?d.pikachuOrder.filter(x=>typeof x==='string').slice(0,500):[],migratedCostumeExclusions:Boolean(d.migratedCostumeExclusions),migratedRepresentativeSwapV295:Boolean(d.migratedRepresentativeSwapV295),migratedPumpkinBaseV296:Boolean(d.migratedPumpkinBaseV296),migratedMiniorRedV298:Boolean(d.migratedMiniorRedV298),pikaManualOrder:Boolean(d.pikaManualOrder)};
+        addCustomToCatalog(data);ensureShinyCostumes(data);migrateRepresentativeFormChecks();migratePumpkinBaseV296();migrateMiniorRedV298();migrateFormerFormChecks(data);migrateCostumeExclusions(data);data.sort(sortEntries);persist();render();message('バックアップを復元しました');
       }catch(e){message('JSONの読み込みに失敗しました：'+e.message);}
     };reader.onerror=()=>message('ファイルを読み込めませんでした');reader.readAsText(file);
   }
