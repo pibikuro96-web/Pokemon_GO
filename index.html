@@ -98,7 +98,7 @@
 /* Pokémon GO personal collection tracker. No accounts or analytics. */
 (() => {
   'use strict';
-  const VERSION = '2.9.5';
+  const VERSION = '2.9.6';
   const STORE_KEY = 'pogo-personal-collection-v1';
   const CACHE_KEY = 'pogo-catalog-cache-v1';
   const PAGE_SIZE = 120;
@@ -162,8 +162,8 @@
 
 
   function readStorage(){
-    try{const d=JSON.parse(localStorage.getItem(STORE_KEY)||'{}');return {owned:(d.owned&&typeof d.owned==='object')?d.owned:{}, excluded:(d.excluded&&typeof d.excluded==='object')?d.excluded:{}, custom:Array.isArray(d.custom)?d.custom:[], updated:d.updated||null, pikachuOrder:Array.isArray(d.pikachuOrder)?d.pikachuOrder.filter(x=>typeof x==='string').slice(0,500):[],migratedCostumeExclusions:Boolean(d.migratedCostumeExclusions),migratedRepresentativeSwapV295:Boolean(d.migratedRepresentativeSwapV295),pikaManualOrder:Boolean(d.pikaManualOrder)};}
-    catch{return {owned:{},excluded:{},custom:[],updated:null,pikachuOrder:[],migratedCostumeExclusions:false,migratedRepresentativeSwapV295:false,pikaManualOrder:false};}
+    try{const d=JSON.parse(localStorage.getItem(STORE_KEY)||'{}');return {owned:(d.owned&&typeof d.owned==='object')?d.owned:{}, excluded:(d.excluded&&typeof d.excluded==='object')?d.excluded:{}, custom:Array.isArray(d.custom)?d.custom:[], updated:d.updated||null, pikachuOrder:Array.isArray(d.pikachuOrder)?d.pikachuOrder.filter(x=>typeof x==='string').slice(0,500):[],migratedCostumeExclusions:Boolean(d.migratedCostumeExclusions),migratedRepresentativeSwapV295:Boolean(d.migratedRepresentativeSwapV295),migratedPumpkinBaseV296:Boolean(d.migratedPumpkinBaseV296),pikaManualOrder:Boolean(d.pikaManualOrder)};}
+    catch{return {owned:{},excluded:{},custom:[],updated:null,pikachuOrder:[],migratedCostumeExclusions:false,migratedRepresentativeSwapV295:false,migratedPumpkinBaseV296:false,pikaManualOrder:false};}
   }
   function persist(){
     state.updated=new Date().toISOString();
@@ -548,6 +548,25 @@
     state.migratedRepresentativeSwapV295=true;
     persist();
   }
+  // v2.9.6: return Pumpkaboo Average/ちゅうだましゅ to the main Dex slot.
+  // Keep both historical checks when replacing the v2.9.5 Small/こだましゅ default.
+  function migratePumpkinBaseV296(){
+    if(state.migratedPumpkinBaseV296)return;
+    const swaps=[
+      ['normal:710','form:710:PUMPKABOO_SMALL','form:710:PUMPKABOO_AVERAGE'],
+      ['shiny:710','shinyform:710:PUMPKABOO_SMALL','shinyform:710:PUMPKABOO_AVERAGE']
+    ];
+    for(const bucket of [state.owned,state.excluded]){
+      for(const [base,small,average] of swaps){
+        const baseFlag=Boolean(bucket[base]),smallFlag=Boolean(bucket[small]),averageFlag=Boolean(bucket[average]);
+        delete bucket[base];delete bucket[small];delete bucket[average];
+        if(baseFlag||smallFlag)bucket[small]=true;
+        if(averageFlag)bucket[base]=true;
+      }
+    }
+    state.migratedPumpkinBaseV296=true;
+    persist();
+  }
   function migrateFormerFormChecks(rows){
     let changed=false;
     for(const x of rows.filter(r=>r.category==='normal'||r.category==='shiny'))
@@ -640,6 +659,7 @@
       migrateGenderChecks(unique);
       migrateLegacyFormChecks(unique);
       migrateRepresentativeFormChecks();
+      migratePumpkinBaseV296();
       migrateFormerFormChecks(unique);
       migrateCostumeExclusions(unique);
       data=unique.sort(sortEntries);
@@ -710,8 +730,8 @@
   }
   function localAtlasSprite(x,shiny){
     if(!LOCAL_ATLAS_INFO||!['normal','shiny'].includes(x.category))return null;
-    // Unown F and Pumpkaboo Small now represent the National Dex slots. Avoid older atlas portraits (A/Average).
-    if([201,710].includes(x.dex)&&x.goFile)return null;
+    // Respect explicitly selected default-form images in the National Dex; the atlas may show an older representative.
+    if([201,710,711].includes(x.dex)&&x.goFile)return null;
     const missing=shiny?LOCAL_ATLAS_INFO.shinyMissing:LOCAL_ATLAS_INFO.normalMissing;
     if(!Array.isArray(missing)||missing.includes(x.dex)||x.dex<1||x.dex>1025)return null;
     const atlas=shiny?LOCAL_ATLAS_INFO.shiny:LOCAL_ATLAS_INFO.normal;
@@ -852,8 +872,8 @@
         if(!d||typeof d!=='object'||Array.isArray(d)||!d.owned||typeof d.owned!=='object')throw new Error('形式が違います');
         if(!window.confirm('現在のチェック結果を読み込んだバックアップで置き換えます。よろしいですか？'))return;
         const clean=(obj)=>Object.fromEntries(Object.entries(obj).filter(([k,v])=>typeof k==='string'&&k.length<300&&v===true).slice(0,30000));
-        state={owned:clean(d.owned),excluded:clean(d.excluded||{}),custom:(Array.isArray(d.custom)?d.custom:[]).filter(x=>x&&CATS.some(c=>c.id===x.category)&&Number(x.dex)>0&&Number(x.dex)<10000&&typeof x.name==='string').slice(0,3000),updated:d.updated||null,pikachuOrder:Array.isArray(d.pikachuOrder)?d.pikachuOrder.filter(x=>typeof x==='string').slice(0,500):[],migratedCostumeExclusions:Boolean(d.migratedCostumeExclusions),migratedRepresentativeSwapV295:Boolean(d.migratedRepresentativeSwapV295),pikaManualOrder:Boolean(d.pikaManualOrder)};
-        addCustomToCatalog(data);ensureShinyCostumes(data);migrateRepresentativeFormChecks();migrateFormerFormChecks(data);migrateCostumeExclusions(data);data.sort(sortEntries);persist();render();message('バックアップを復元しました');
+        state={owned:clean(d.owned),excluded:clean(d.excluded||{}),custom:(Array.isArray(d.custom)?d.custom:[]).filter(x=>x&&CATS.some(c=>c.id===x.category)&&Number(x.dex)>0&&Number(x.dex)<10000&&typeof x.name==='string').slice(0,3000),updated:d.updated||null,pikachuOrder:Array.isArray(d.pikachuOrder)?d.pikachuOrder.filter(x=>typeof x==='string').slice(0,500):[],migratedCostumeExclusions:Boolean(d.migratedCostumeExclusions),migratedRepresentativeSwapV295:Boolean(d.migratedRepresentativeSwapV295),migratedPumpkinBaseV296:Boolean(d.migratedPumpkinBaseV296),pikaManualOrder:Boolean(d.pikaManualOrder)};
+        addCustomToCatalog(data);ensureShinyCostumes(data);migrateRepresentativeFormChecks();migratePumpkinBaseV296();migrateFormerFormChecks(data);migrateCostumeExclusions(data);data.sort(sortEntries);persist();render();message('バックアップを復元しました');
       }catch(e){message('JSONの読み込みに失敗しました：'+e.message);}
     };reader.onerror=()=>message('ファイルを読み込めませんでした');reader.readAsText(file);
   }
