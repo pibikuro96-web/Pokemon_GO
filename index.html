@@ -98,7 +98,7 @@
 /* Pokémon GO personal collection tracker. No accounts or analytics. */
 (() => {
   'use strict';
-  const VERSION = '2.9.4';
+  const VERSION = '2.9.5';
   const STORE_KEY = 'pogo-personal-collection-v1';
   const CACHE_KEY = 'pogo-catalog-cache-v1';
   const PAGE_SIZE = 120;
@@ -162,8 +162,8 @@
 
 
   function readStorage(){
-    try{const d=JSON.parse(localStorage.getItem(STORE_KEY)||'{}');return {owned:(d.owned&&typeof d.owned==='object')?d.owned:{}, excluded:(d.excluded&&typeof d.excluded==='object')?d.excluded:{}, custom:Array.isArray(d.custom)?d.custom:[], updated:d.updated||null, pikachuOrder:Array.isArray(d.pikachuOrder)?d.pikachuOrder.filter(x=>typeof x==='string').slice(0,500):[],migratedCostumeExclusions:Boolean(d.migratedCostumeExclusions),pikaManualOrder:Boolean(d.pikaManualOrder)};}
-    catch{return {owned:{},excluded:{},custom:[],updated:null,pikachuOrder:[],migratedCostumeExclusions:false,pikaManualOrder:false};}
+    try{const d=JSON.parse(localStorage.getItem(STORE_KEY)||'{}');return {owned:(d.owned&&typeof d.owned==='object')?d.owned:{}, excluded:(d.excluded&&typeof d.excluded==='object')?d.excluded:{}, custom:Array.isArray(d.custom)?d.custom:[], updated:d.updated||null, pikachuOrder:Array.isArray(d.pikachuOrder)?d.pikachuOrder.filter(x=>typeof x==='string').slice(0,500):[],migratedCostumeExclusions:Boolean(d.migratedCostumeExclusions),migratedRepresentativeSwapV295:Boolean(d.migratedRepresentativeSwapV295),pikaManualOrder:Boolean(d.pikaManualOrder)};}
+    catch{return {owned:{},excluded:{},custom:[],updated:null,pikachuOrder:[],migratedCostumeExclusions:false,migratedRepresentativeSwapV295:false,pikaManualOrder:false};}
   }
   function persist(){
     state.updated=new Date().toISOString();
@@ -520,6 +520,34 @@
     if(changed)persist();
     return changed;
   }
+  // v2.9.5: retain check identity when the National Dex representative changes.
+  // Old base: Unown A, Pumpkaboo Average, Vivillon Meadow.
+  // New base: Unown F, Pumpkaboo Small; all Vivillon patterns live in the forms tab.
+  function migrateRepresentativeFormChecks(){
+    if(state.migratedRepresentativeSwapV295)return;
+    const swaps=[
+      ['normal:201','form:201:UNOWN_F','form:201:UNOWN_A'],
+      ['shiny:201','shinyform:201:UNOWN_F','shinyform:201:UNOWN_A'],
+      ['normal:710','form:710:PUMPKABOO_SMALL','form:710:PUMPKABOO_AVERAGE'],
+      ['shiny:710','shinyform:710:PUMPKABOO_SMALL','shinyform:710:PUMPKABOO_AVERAGE']
+    ];
+    for(const bucket of [state.owned,state.excluded]){
+      for(const [base,former,newForm] of swaps){
+        const baseFlag=Boolean(bucket[base]),formerFlag=Boolean(bucket[former]),newFlag=Boolean(bucket[newForm]);
+        delete bucket[base];delete bucket[former];
+        if(formerFlag)bucket[base]=true;
+        if(baseFlag||newFlag)bucket[newForm]=true;
+      }
+      for(const [base,meadow] of [
+        ['normal:666','form:666:VIVILLON_MEADOW'],
+        ['shiny:666','shinyform:666:VIVILLON_MEADOW']
+      ]){
+        if(bucket[base]){bucket[meadow]=true;delete bucket[base];}
+      }
+    }
+    state.migratedRepresentativeSwapV295=true;
+    persist();
+  }
   function migrateFormerFormChecks(rows){
     let changed=false;
     for(const x of rows.filter(r=>r.category==='normal'||r.category==='shiny'))
@@ -611,6 +639,7 @@
       const unique=auditCatalog(rows);
       migrateGenderChecks(unique);
       migrateLegacyFormChecks(unique);
+      migrateRepresentativeFormChecks();
       migrateFormerFormChecks(unique);
       migrateCostumeExclusions(unique);
       data=unique.sort(sortEntries);
@@ -821,8 +850,8 @@
         if(!d||typeof d!=='object'||Array.isArray(d)||!d.owned||typeof d.owned!=='object')throw new Error('形式が違います');
         if(!window.confirm('現在のチェック結果を読み込んだバックアップで置き換えます。よろしいですか？'))return;
         const clean=(obj)=>Object.fromEntries(Object.entries(obj).filter(([k,v])=>typeof k==='string'&&k.length<300&&v===true).slice(0,30000));
-        state={owned:clean(d.owned),excluded:clean(d.excluded||{}),custom:(Array.isArray(d.custom)?d.custom:[]).filter(x=>x&&CATS.some(c=>c.id===x.category)&&Number(x.dex)>0&&Number(x.dex)<10000&&typeof x.name==='string').slice(0,3000),updated:d.updated||null,pikachuOrder:Array.isArray(d.pikachuOrder)?d.pikachuOrder.filter(x=>typeof x==='string').slice(0,500):[],migratedCostumeExclusions:Boolean(d.migratedCostumeExclusions),pikaManualOrder:Boolean(d.pikaManualOrder)};
-        addCustomToCatalog(data);ensureShinyCostumes(data);migrateFormerFormChecks(data);migrateCostumeExclusions(data);data.sort(sortEntries);persist();render();message('バックアップを復元しました');
+        state={owned:clean(d.owned),excluded:clean(d.excluded||{}),custom:(Array.isArray(d.custom)?d.custom:[]).filter(x=>x&&CATS.some(c=>c.id===x.category)&&Number(x.dex)>0&&Number(x.dex)<10000&&typeof x.name==='string').slice(0,3000),updated:d.updated||null,pikachuOrder:Array.isArray(d.pikachuOrder)?d.pikachuOrder.filter(x=>typeof x==='string').slice(0,500):[],migratedCostumeExclusions:Boolean(d.migratedCostumeExclusions),migratedRepresentativeSwapV295:Boolean(d.migratedRepresentativeSwapV295),pikaManualOrder:Boolean(d.pikaManualOrder)};
+        addCustomToCatalog(data);ensureShinyCostumes(data);migrateRepresentativeFormChecks();migrateFormerFormChecks(data);migrateCostumeExclusions(data);data.sort(sortEntries);persist();render();message('バックアップを復元しました');
       }catch(e){message('JSONの読み込みに失敗しました：'+e.message);}
     };reader.onerror=()=>message('ファイルを読み込めませんでした');reader.readAsText(file);
   }
