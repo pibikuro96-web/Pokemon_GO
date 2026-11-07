@@ -106,7 +106,7 @@
 /* Pokémon GO personal collection tracker. No accounts or analytics. */
 (() => {
   'use strict';
-  const VERSION = '2.9.21';
+  const VERSION = '2.9.22';
   const STORE_KEY = 'pogo-personal-collection-v1';
   const CACHE_KEY = 'pogo-catalog-cache-v1';
   const PAGE_SIZE = 120;
@@ -318,17 +318,9 @@
     }
     if(isCostume(cat)){
       go(specified);
-      // Exact costume imagery may be absent from the GO game-asset manifest.
-      // Use an explicitly labeled GO sprite of the same species/form as a reference only.
-      if(!out.length&&entry.referenceGoFile){
-        const file=String(entry.referenceGoFile).replace(/(?:\.s)?\.icon\.png$/,ending);
-        go(file,'GO参考画像：'+String(entry.referenceGoNote||'衣装は反映されていません'));
-      }
-      if(!out.length&&entry.sizeReferenceGoFile){
-        const file=String(entry.sizeReferenceGoFile).replace(/(?:\.s)?\.icon\.png$/,ending);
-        go(file,'サイズ参考用のGO画像（衣装は反映されていません）');
-      }
-      // Never present a non-costumed reference as if it were the exact costume.
+      // A costume is displayed only with its exact Pokémon GO costume sprite.
+      // Even a transparent non-costumed GO sprite would misrepresent a distinct item.
+      // Missing exact sprites appear as 「GO画像未取得」, with their check state preserved.
       return out;
     }
     // Gender variants are selected separately by genderSprite.
@@ -731,7 +723,7 @@
       sourceStatus=GO_FILES.size?'ready':'partial';
       if(GO_FILES.size){
         els.status.className='notice success';
-        els.status.textContent='図鑑とPokémon GO透過画像を読み込みました。画像未取得の項目は別作品・別の姿で代用せず表示します。';
+        els.status.textContent='図鑑とPokémon GOの透過PNG画像を読み込みました。該当する姿・衣装の画像がない場合は別の姿で代用せず「GO画像未取得」と表示します。';
       }else{
         els.status.className='notice warn';
         els.status.textContent='図鑑は読み込めましたが、Pokémon GO画像索引を取得できません。画像は代用せず未取得として表示します。';
