@@ -104,7 +104,7 @@
 /* Pokémon GO personal collection tracker. No accounts or analytics. */
 (() => {
   'use strict';
-  const VERSION = '2.9.26';
+  const VERSION = '2.9.27';
   const STORE_KEY = 'pogo-personal-collection-v1';
   const CACHE_KEY = 'pogo-catalog-cache-v1';
   const VIEW_KEY = 'pogo-view-position-v1';
@@ -119,8 +119,8 @@
     {id:'shinyforms',title:'色違い・別フォルム',short:'色違いフォルム',subtitle:'姿・地域違い',note:'通常図鑑の代表色違いは「対象外」として参照表示し、チェック・進捗は通常色違い側で管理します。リージョンだけの通常姿は追加しません。未実装・未解禁・確認中は表示切替オンで表示します。'},
     {id:'gender',title:'オス・メス差分',short:'オス・メス',subtitle:'性差のある姿',note:'オスとメスを個別にチェックします。両方そろった場合のみ入手済みとなり、達成率に加算されます。'},
     {id:'shinygender',title:'色違い・オス・メス差分',short:'色違いオス・メス',subtitle:'色違いの性差',note:'色違いのオスとメスを個別にチェックします。両方そろうと入手済みになり、通常色とは別に集計します。'},
-    {id:'costumepika',title:'衣装・ピカチュウ',short:'衣装ピカチュウ',subtitle:'通常色・実装順',note:'ピカチュウ衣装を初実装の年代・イベント順に表示します。104種類（実装済み101・今後3）を管理します。日付未確認の一部は同年内で暫定順です。'},
-    {id:'shinycostumepika',title:'色違い・衣装ピカチュウ',short:'色違い衣装ピカチュウ',subtitle:'色違い・実装順',note:'通常色の初実装順に色違い衣装を並べます。104候補（解禁照合済み99・確認中1・未解禁1・今後3）を管理します。'},
+    {id:'costumepika',title:'衣装・ピカチュウ',short:'衣装ピカチュウ',subtitle:'通常色・実装順',note:'ピカチュウ衣装を初実装の年代・イベント順に表示します。未登場候補は表示切替で確認できます。日付未確認の一部は同年内で暫定順です。'},
+    {id:'shinycostumepika',title:'色違い・衣装ピカチュウ',short:'色違い衣装ピカチュウ',subtitle:'色違い・実装順',note:'通常色の初実装順に色違い衣装を並べます。色違いの解禁が確認できない項目は、表示切替オンで確認できます。'},
     {id:'costumeother',title:'衣装・その他',short:'衣装その他',subtitle:'通常色',note:'ピカチュウ以外の衣装の通常色を管理します。'},
     {id:'shinycostumeother',title:'色違い・衣装その他',short:'色違い衣装その他',subtitle:'色違い衣装',note:'ピカチュウ以外の衣装の色違いを独立して管理します。未解禁・確認中は表示切替をオンにした場合のみ表示します。'},
   ];
@@ -896,8 +896,11 @@
     renderRegionProgress();
     const cat=CATS.find(c=>c.id===active),r=filteredRows();
     $('current-title').textContent=cat.title;$('current-description').textContent=cat.note;
-    const costumeDetail=!els.showUnreleased.checked?'':active==='costumepika'?' （登場済み101・予定3）':
-      active==='shinycostumepika'?' （解禁照合済み99・未解禁2・予定3）':'';
+    const costumeDetail=!els.showUnreleased.checked||!['costumepika','shinycostumepika'].includes(active)?'':(()=>{
+      const tally={released:0,unverified:0,unreleased:0};
+      for(const x of rowsFor(active))tally[releaseOf(x)]++;
+      return ` （確認済み${tally.released}・確認中${tally.unverified}・未解禁／未登場${tally.unreleased}）`;
+    })();
     $('visible-count').textContent=`${r.length.toLocaleString()} 件`+(els.search.value||els.generation.value!=='all'||els.ownership.value!=='all'?'':costumeDetail);
     const mirrors=r.filter(x=>x.mirrorOf).length;
     if(mirrors)$('visible-count').textContent+=' （対象外の代表姿 '+mirrors+' 件）';
