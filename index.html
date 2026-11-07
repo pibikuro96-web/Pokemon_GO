@@ -103,7 +103,7 @@
 /* Pokémon GO personal collection tracker. No accounts or analytics. */
 (() => {
   'use strict';
-  const VERSION = '2.9.14';
+  const VERSION = '2.9.15';
   const STORE_KEY = 'pogo-personal-collection-v1';
   const CACHE_KEY = 'pogo-catalog-cache-v1';
   const PAGE_SIZE = 120;
@@ -932,7 +932,11 @@
     if(r.length>visibleLimit)els.loadMore.textContent=`さらに表示する （${visibleLimit.toLocaleString()} / ${r.length.toLocaleString()} 件）`;
   }
   function render(){renderSummary();renderCards();}
-  function changeCat(cat){if(!CATS.some(c=>c.id===cat))return;active=cat;visibleLimit=pageLimitFor(cat);els.formType.hidden=!(cat==='forms'||cat==='shinyforms');$('order-open').hidden=cat!=='costumepika'&&cat!=='shinycostumepika';els.ownership.querySelector('option[value="missing"]').textContent=isGender(cat)?'未入手のみ（どちらか不足）':'未入手のみ';els.ownership.querySelector('option[value="owned"]').textContent=isGender(cat)?'入手済みのみ（両方）':'入手済みのみ';render();}
+  function changeCat(cat){if(!CATS.some(c=>c.id===cat))return;
+    // Do not carry an old region, owned-only, or regional-form filter into another category.
+    // In particular, a previous 'regional only' selection hid all Furfrou trims in shinyforms.
+    if(active!==cat){els.generation.value='all';els.ownership.value='all';els.formType.value='all';}
+    active=cat;visibleLimit=pageLimitFor(cat);els.formType.hidden=!(cat==='forms'||cat==='shinyforms');$('order-open').hidden=cat!=='costumepika'&&cat!=='shinycostumepika';els.ownership.querySelector('option[value="missing"]').textContent=isGender(cat)?'未入手のみ（どちらか不足）':'未入手のみ';els.ownership.querySelector('option[value="owned"]').textContent=isGender(cat)?'入手済みのみ（両方）':'入手済みのみ';render();}
   function toggleOwnership(id,kind){
     const x=data.find(r=>r.id===id);if(!x||x.mirrorOf)return;
     if(isDual(x.category)&&!['male','female'].includes(kind))return;
