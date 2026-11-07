@@ -104,7 +104,7 @@
 /* Pokémon GO personal collection tracker. No accounts or analytics. */
 (() => {
   'use strict';
-  const VERSION = '2.9.24';
+  const VERSION = '2.9.25';
   const STORE_KEY = 'pogo-personal-collection-v1';
   const CACHE_KEY = 'pogo-catalog-cache-v1';
   const PAGE_SIZE = 120;
@@ -687,6 +687,7 @@
   }
   async function loadData(force=false){
     sourceStatus='loading';
+    els.status.hidden=false;
     els.status.className='notice';
     els.status.innerHTML='<span class="pulse"></span>リポジトリ内の図鑑・画像索引を読み込んでいます…';
     const settled=await Promise.allSettled([
@@ -720,12 +721,7 @@
       data=[...unique,...makeRepresentativeMirrors(unique,pack)].sort(sortEntries);
       sourceStatus=GO_FILES.size&&(GO_BASE||GO_RAW_BASE)?'ready':'partial';
       if(sourceStatus==='ready'){
-        const released=unique.filter(x=>releaseOf(x)==='released'&&!x.mirrorOf);
-        const missing=released.filter(x=>!hasGoPortrait(x));
-        els.status.className=missing.length?'notice warn':'notice success';
-        els.status.textContent=missing.length
-          ?'Pokémon GO透過画像の参照先を確認しました。実装確認済み'+released.length.toLocaleString()+'項目のうち、正確なGO画像が未取得の項目は'+missing.length.toLocaleString()+'件です（別の姿で代用しません）。'
-          :'Pokémon GO透過画像の参照先を確認しました。実装確認済み'+released.length.toLocaleString()+'項目はGO画像を使用します（性差は両方確認済み）。';
+        els.status.hidden=true;
       }else{
         els.status.className='notice warn';
         els.status.textContent='図鑑は読み込めましたが、Pokémon GO画像索引を取得できません。画像は代用せず未取得として表示します。';
@@ -772,16 +768,6 @@
   function spriteTag(x,shiny){
     const candidates=imageCandidates(x,shiny);
     return renderImageOptions(candidates,x.name+' '+x.sub+(shiny?' 色違い':''));
-  }
-  // Check both genders and exact costume artwork against the pinned GO asset manifest.
-  // Reference and HOME artwork never counts toward this integrity check.
-  function hasGoPortrait(x){
-    const shiny=['shiny','shinyforms','shinygender','shinycostumepika','shinycostumeother'].includes(x.category);
-    if(isGender(x.category)){
-      const ending=shiny?'.s.icon.png':'.icon.png';
-      return [x.maleFile,x.femaleFile].every(file=>file&&GO_FILES.has(String(file).replace(/(?:\.s)?\.icon\.png$/,ending)));
-    }
-    return imageCandidates(x,shiny).length>0;
   }
   function makeCard(x){
     const gender=isGender(x.category),excluded=Boolean(state.excluded[x.id]),yes=isOwned(x);
