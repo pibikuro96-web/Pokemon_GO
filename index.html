@@ -710,6 +710,8 @@
   }
   function localAtlasSprite(x,shiny){
     if(!LOCAL_ATLAS_INFO||!['normal','shiny'].includes(x.category))return null;
+    // Unown F and Pumpkaboo Small now represent the National Dex slots. Avoid older atlas portraits (A/Average).
+    if([201,710].includes(x.dex)&&x.goFile)return null;
     const missing=shiny?LOCAL_ATLAS_INFO.shinyMissing:LOCAL_ATLAS_INFO.normalMissing;
     if(!Array.isArray(missing)||missing.includes(x.dex)||x.dex<1||x.dex>1025)return null;
     const atlas=shiny?LOCAL_ATLAS_INFO.shiny:LOCAL_ATLAS_INFO.normal;
