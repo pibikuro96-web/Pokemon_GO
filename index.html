@@ -36,8 +36,6 @@
 
 
 .sprite{min-width:0;overflow:hidden}
-/* Display the 16 × 65 atlas with fluid tile sizing. Never use transforms:
-   fixed 104px sprites would overlap neighbouring cards on small screens. */
 .workspace-actions a.button{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
 .region-progress{margin-top:18px;padding:12px 16px;border:1px solid #dce6f2;background:#f7faff;border-radius:12px;color:#344b68}
 .region-progress-main{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
@@ -75,7 +73,7 @@
     <div class="notice" id="data-status" role="status"><span class="pulse"></span> ポケモンのデータを読み込んでいます…</div>
     <section class="summary-grid" id="summary-grid" aria-label="カテゴリ別の達成状況"></section>
     <main class="workspace">
-      <div class="workspace-top"><div><div class="eyebrow dark">YOUR COLLECTION</div><h2>コンプチェッカー</h2></div><div class="workspace-actions"><button type="button" class="button secondary" id="order-open" hidden>ピカチュウ順序変更</button><button type="button" class="button secondary" id="bulk-select" title="現在の絞り込みに一致する全項目を入手済みにする">✓ 全て選択</button><button type="button" class="button secondary" id="bulk-clear" title="現在の絞り込みに一致する全項目のチェックを解除">全て解除</button><button type="button" class="button secondary" id="add-open">＋ 項目を追加</button></div></div>
+      <div class="workspace-top"><div><div class="eyebrow dark">YOUR COLLECTION</div><h2>コンプチェッカー</h2></div><div class="workspace-actions"><button type="button" class="button secondary" id="order-open" hidden>ピカチュウ順序変更</button><button type="button" class="button secondary" id="bulk-select" title="現在の絞り込みに一致する全項目を入手済みにする">✓ 全て選択</button><button type="button" class="button secondary" id="bulk-clear" title="現在の絞り込みに一致する全項目のチェックを解除">全て解除</button></div></div>
       <nav class="tabs" id="category-tabs" aria-label="カテゴリ切り替え"></nav>
       <section class="controls" aria-label="表示条件">
         <div class="search-wrap"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="ポケモン名・図鑑番号・フォルム名で検索" autocomplete="off" aria-label="検索" /></div>
@@ -93,20 +91,19 @@
       <div class="cards" id="cards" aria-live="polite"></div>
       <div id="empty" class="empty" hidden><div>◌</div><strong>該当するポケモンがありません</strong><span>検索条件・フィルタを変更してください。</span></div>
       <button type="button" class="button load-more" id="load-more" hidden>さらに表示する</button>
-      <p class="helper" id="catalog-help">※ 実装情報は2026年11月7日時点の確認結果です。公開データをもとにした判定のため、未確認のフォルム・衣装は引き続き調査対象です。※ チェックがオフのときは全タブで実装確認済みのみを表示・集計します。未実装・確認中はチェックをオンにした場合のみ一覧に表示します。「未実装・未確認も表示」をオンにすると、その項目も分母・入手済み数に加え、チェックの操作で進捗バーが変動します。衣装の色違いも確認中のものはオンのときだけ集計します。色違い未解禁の衣装は進捗から除外します。※ Googleドライブの図鑑スクリーンショットから画像を切り出しました。画像不足は未所持を意味せず、未実装・未解禁や撮影範囲外も含みます。※ 「全て選択／全て解除」は現在のタブで検索・絞り込みに一致する収集対象（続きを含む）に適用します。通常図鑑へ統合した姿は、リージョン専用の通常姿を除き、フォルムタブに「対象外」として参照表示します。フォルムタブの画像はPokémon GOのゲーム内素材だけを使用し、Pokémon HOME・本編公式イラストなどで代用しません。対象外の代表姿はフォルム側で個別チェックできず、達成率に二重計上しません。入手状態は通常図鑑と連動します。オス・メスは個別にチェックし、両方そろった場合のみ入手済みに集計します。衣装は通常色・色違いを別タブで管理します。フォルム・衣装にはゲームデータなどを基にした候補を含みます。実装状況や色違いの解禁状況は、個々に検証済みとは限りません。</p>
+      <p class="helper" id="catalog-help">※ 実装情報は2026年11月7日時点の確認結果です。公開データをもとにした判定のため、未確認のフォルム・衣装は引き続き調査対象です。※ チェックがオフのときは全タブで実装確認済みのみを表示・集計します。未実装・確認中はチェックをオンにした場合のみ一覧に表示します。「未実装・未確認も表示」をオンにすると、その項目も分母・入手済み数に加え、チェックの操作で進捗バーが変動します。衣装の色違いも確認中のものはオンのときだけ集計します。色違い未解禁の衣装は進捗から除外します。※ 全カテゴリの画像は背景透過のPokémon GOゲーム素材を使用します。対象の姿・衣装に一致する画像がない場合は「GO画像未取得」と表示します。画像不足は未所持を意味しません。※ 「全て選択／全て解除」は現在のタブで検索・絞り込みに一致する収集対象（続きを含む）に適用します。通常図鑑へ統合した姿は、リージョン専用の通常姿を除き、フォルムタブに「対象外」として参照表示します。全タブでPokémon GOの画像だけを使用し、Pokémon HOME・本編公式イラストなどで代用しません。対象外の代表姿はフォルム側で個別チェックできず、達成率に二重計上しません。入手状態は通常図鑑と連動します。オス・メスは個別にチェックし、両方そろった場合のみ入手済みに集計します。衣装は通常色・色違いを別タブで管理します。フォルム・衣装にはゲームデータなどを基にした候補を含みます。実装状況や色違いの解禁状況は、個々に検証済みとは限りません。</p>
     </main>
     <aside class="side-scroll" aria-label="ページ内スクロール"><button type="button" id="scroll-top" aria-label="ページの先頭へ" title="先頭へ">↑</button><button type="button" id="scroll-bottom" aria-label="ページの末尾へ" title="末尾へ">↓</button></aside>
     <footer><span>個人用・非公式ファンツール / データはこのブラウザ内に保存</span><span>Pokémonおよび関連名称・画像の権利は各権利者に帰属します。</span></footer>
   </div>
   <dialog id="order-dialog" class="dialog"><div class="modal"><div class="dialog-heading"><h2>ピカチュウの実装日順・手動並び替え</h2><button type="button" class="close" id="order-close">×</button></div><p class="muted">Googleスプレッドシートの衣装名を上から順に1行1件で貼り付けます。名称が一致する項目だけ先頭から指定順に並べ、残りは初実装順で表示します。指定を解除すると初実装順へ戻ります。ここでの変更はこの端末に保存されます。</p><textarea id="pika-order-input" rows="11" style="width:100%;border:1px solid #dce5f1;border-radius:10px;padding:10px;font:inherit;font-size:13px" placeholder="例：パーティハット&#10;サンタ帽子&#10;ハロウィン帽子"></textarea><p id="order-feedback" class="feedback" aria-live="polite"></p><div class="setting-actions"><button type="button" id="order-apply" class="button primary">一致した順序を反映</button><button type="button" id="order-clear" class="button secondary">指定を解除</button></div></div></dialog>
   <dialog id="settings-dialog" class="dialog"><form method="dialog" class="modal"><div class="dialog-heading"><h2>データ管理</h2><button aria-label="閉じる" class="close" value="cancel">×</button></div><p class="muted">チェック結果はこの端末のブラウザに保存されます。別端末には自動同期されません。定期的にバックアップしてください。</p><div class="setting-actions"><button id="export-json" type="button" class="button primary">バックアップを保存（JSON）</button><button id="import-json" type="button" class="button secondary">バックアップを読み込む</button><input type="file" accept=".json,application/json" id="import-file" hidden /><button id="export-csv" type="button" class="button secondary">チェック表を書き出す（CSV）</button><button id="refresh-data" type="button" class="button secondary">最新のデータを再取得</button></div><div class="divider"></div><div class="detail">入手判定：<strong>一度でも入手したことがある</strong><br>通常・フォルム・色違い：<strong>すべて独立</strong><br>各カードの「集計対象外」で達成率の分母から除外できます。</div><div class="divider"></div><button type="button" id="reset-checks" class="button danger">チェック結果を全削除</button><p id="settings-feedback" class="feedback" aria-live="polite"></p></form></dialog>
-  <dialog id="add-dialog" class="dialog"><form id="add-form" class="modal"><div class="dialog-heading"><h2>項目を手動追加</h2><button type="button" id="add-close" class="close" aria-label="閉じる">×</button></div><p class="muted">データ提供元にない衣装や新しいフォルムを追加できます。</p><label class="field">カテゴリ<select id="custom-cat" required><option value="normal">通常</option><option value="forms">別フォルム</option><option value="shiny">色違い（通常）</option><option value="shinyforms">色違い（別フォルム）</option><option value="costumepika">衣装（ピカチュウ）</option><option value="shinycostumepika">色違い衣装（ピカチュウ）</option><option value="costumeother">衣装（その他）</option><option value="shinycostumeother">色違い衣装（その他）</option><option value="gender">オス・メス差分</option><option value="shinygender">色違い・オス・メス差分</option></select></label><label class="field">全国図鑑番号<input type="number" id="custom-dex" min="1" max="9999" placeholder="例：25" required /></label><label class="field">ポケモン名<input type="text" id="custom-name" maxlength="60" placeholder="例：ピカチュウ" required /></label><label class="field">フォルム／衣装の名称<input type="text" id="custom-sub" maxlength="100" placeholder="例：イベント衣装" /></label><button type="submit" class="button primary">この項目を追加</button><p id="add-feedback" class="feedback" aria-live="polite"></p></form></dialog>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <script>
 /* Pokémon GO personal collection tracker. No accounts or analytics. */
 (() => {
   'use strict';
-  const VERSION = '2.9.22';
+  const VERSION = '2.9.23';
   const STORE_KEY = 'pogo-personal-collection-v1';
   const CACHE_KEY = 'pogo-catalog-cache-v1';
   const PAGE_SIZE = 120;
@@ -912,16 +909,6 @@
       }catch(e){message('JSONの読み込みに失敗しました：'+e.message);}
     };reader.onerror=()=>message('ファイルを読み込めませんでした');reader.readAsText(file);
   }
-  function addCustom(event){
-    event.preventDefault();const cat=$('custom-cat').value,dex=Number($('custom-dex').value),name=$('custom-name').value.trim(),sub=$('custom-sub').value.trim();
-    if(!CATS.some(c=>c.id===cat)||!Number.isInteger(dex)||dex<1||dex>9999||!name){$('add-feedback').textContent='入力内容を確認してください';return;}
-    if((cat==='costumepika'||cat==='shinycostumepika')&&dex!==25){$('add-feedback').textContent='ピカチュウ衣装は全国図鑑No.25のみ登録できます';return;}
-    if((cat==='forms'||cat==='shinyforms'||isCostume(cat))&&!sub){$('add-feedback').textContent='フォルム・衣装名を入力してください';return;}
-    const exists=data.some(x=>x.category===cat&&x.dex===dex&&norm(x.sub)===norm(sub));
-    if(exists){$('add-feedback').textContent='同じカテゴリ・図鑑番号・名称の項目がすでにあります';return;}
-    const id='custom:'+Date.now()+':'+Math.random().toString(36).slice(2,10),rec={id,category:cat,dex,name,sub};
-    state.custom.push(rec);data.push(makeEntry(cat,dex,name,sub,id,{custom:true}));ensureShinyCostumes(data);data.sort(sortEntries);persist();$('add-dialog').close();$('add-form').reset();active=cat;visibleLimit=pageLimitFor(cat);render();message('項目を追加しました');
-  }
   function bindEvents(){
     els.summary.addEventListener('click',e=>{const cat=e.target.closest('[data-cat]')?.dataset.cat;if(cat)changeCat(cat)});
     els.tabs.addEventListener('click',e=>{const cat=e.target.closest('[data-cat]')?.dataset.cat;if(cat)changeCat(cat)});
@@ -974,15 +961,12 @@
     $('bulk-clear').addEventListener('click',()=>bulkUpdate(false));
     $('scroll-top').addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
     $('scroll-bottom').addEventListener('click',()=>window.scrollTo({top:document.documentElement.scrollHeight,behavior:'smooth'}));
-    $('add-open').addEventListener('click',()=>$('add-dialog').showModal());
-    $('add-close').addEventListener('click',()=>$('add-dialog').close());
-    $('add-form').addEventListener('submit',addCustom);
     $('export-json').addEventListener('click',exportJSON);$('export-csv').addEventListener('click',exportCSV);
     $('import-json').addEventListener('click',()=>$('import-file').click());
     $('import-file').addEventListener('change',e=>{importJSON(e.target.files[0]);e.target.value='';});
     $('refresh-data').addEventListener('click',()=>{ $('settings-dialog').close();loadData(true); });
     $('reset-checks').addEventListener('click',()=>{if(!window.confirm('すべての入手チェック・集計除外設定を削除します。手動追加項目は残ります。よろしいですか？'))return;state.owned={};state.excluded={};persist();render();message('チェックを初期化しました');});
-    for(const dlg of [$('settings-dialog'),$('add-dialog'),$('order-dialog')])dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close();});
+    for(const dlg of [$('settings-dialog'),$('order-dialog')])dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close();});
   }
   bindEvents();data=fallback();render();loadData();
 })();
