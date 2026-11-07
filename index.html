@@ -59,7 +59,7 @@
 @media(max-width:640px){.costume-date{font-size:8px}}
 
 /* Image display: native transparent Pokémon GO PNGs, with no atlas or background artwork. */
-.sprite img,.costume-images .sprite img{background:transparent;border:0;box-shadow:none;mix-blend-mode:normal;object-fit:contain;image-rendering:auto}
+.sprite img,.costume-images .sprite img{display:block;background:transparent;border:0;box-shadow:none;filter:none;mix-blend-mode:normal;object-fit:contain;image-rendering:auto}
 </style>
 </head>
 <body>
@@ -106,7 +106,7 @@
 /* Pokémon GO personal collection tracker. No accounts or analytics. */
 (() => {
   'use strict';
-  const VERSION = '2.9.20';
+  const VERSION = '2.9.21';
   const STORE_KEY = 'pogo-personal-collection-v1';
   const CACHE_KEY = 'pogo-catalog-cache-v1';
   const PAGE_SIZE = 120;
@@ -318,11 +318,17 @@
     }
     if(isCostume(cat)){
       go(specified);
+      // Exact costume imagery may be absent from the GO game-asset manifest.
+      // Use an explicitly labeled GO sprite of the same species/form as a reference only.
+      if(!out.length&&entry.referenceGoFile){
+        const file=String(entry.referenceGoFile).replace(/(?:\.s)?\.icon\.png$/,ending);
+        go(file,'GO参考画像：'+String(entry.referenceGoNote||'衣装は反映されていません'));
+      }
       if(!out.length&&entry.sizeReferenceGoFile){
         const file=String(entry.sizeReferenceGoFile).replace(/(?:\.s)?\.icon\.png$/,ending);
         go(file,'サイズ参考用のGO画像（衣装は反映されていません）');
       }
-      // Never use an uncostumed or different-costume image as an exact costume image.
+      // Never present a non-costumed reference as if it were the exact costume.
       return out;
     }
     // Gender variants are selected separately by genderSprite.
@@ -333,7 +339,7 @@
     if(!candidates.length)return '<span class="art-missing">GO画像未取得</span>';
     const opts=esc(JSON.stringify(candidates));
     const first=candidates[0];
-    return '<img loading="lazy" decoding="async" src="'+esc(first.url)+'" alt="'+esc(label)+'" data-image-options="'+opts+'" data-image-index="0">'+
+    return '<img loading="lazy" decoding="async" width="256" height="256" draggable="false" src="'+esc(first.url)+'" alt="'+esc(label)+'" data-image-options="'+opts+'" data-image-index="0">'+
       '<span class="sprite-note"'+(first.note?'':' hidden')+'>'+esc(first.note)+'</span>';
   }
   function resolveAssetId(form,pokemonMap,dex){
