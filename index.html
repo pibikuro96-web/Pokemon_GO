@@ -34,7 +34,7 @@
 .costume-images .sprite img{max-height:61px}
 @media(max-width:600px){.sprite-note{font-size:7px}}
 
-.atlas-sprite{display:block;flex:0 1 auto;width:min(104px,100%);height:auto;aspect-ratio:1;margin:0 auto;background-repeat:no-repeat;background-size:1600% 6500%;image-rendering:auto;border-radius:7px}
+
 .sprite{min-width:0;overflow:hidden}
 /* Display the 16 × 65 atlas with fluid tile sizing. Never use transforms:
    fixed 104px sprites would overlap neighbouring cards on small screens. */
@@ -57,6 +57,9 @@
 @media(max-width:640px){.unverified-badge{font-size:8px}}
 .costume-date{display:block;color:#647991;font-size:9px;line-height:1.3;margin-top:4px;font-variant-numeric:tabular-nums}
 @media(max-width:640px){.costume-date{font-size:8px}}
+
+/* Image display: native transparent Pokémon GO PNGs, with no atlas or background artwork. */
+.sprite img,.costume-images .sprite img{background:transparent;border:0;box-shadow:none;mix-blend-mode:normal;object-fit:contain;image-rendering:auto}
 </style>
 </head>
 <body>
@@ -103,7 +106,7 @@
 /* Pokémon GO personal collection tracker. No accounts or analytics. */
 (() => {
   'use strict';
-  const VERSION = '2.9.19';
+  const VERSION = '2.9.20';
   const STORE_KEY = 'pogo-personal-collection-v1';
   const CACHE_KEY = 'pogo-catalog-cache-v1';
   const PAGE_SIZE = 120;
@@ -130,9 +133,7 @@
   const POGO='https://pogoapi.net/api/v1/';
   const GO_ASSET_MANIFEST='./assets-index.json';
   const LOCAL_CATALOG='./catalog-data.json';
-  const LOCAL_ATLAS='./atlas-index.json';
   const GENDER_DATA='./gender-data.json';
-  const SPRITE='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/';
   const FALLBACK_SPECIES={1:'フシギダネ',4:'ヒトカゲ',7:'ゼニガメ',25:'ピカチュウ',26:'ライチュウ',37:'ロコン',38:'キュウコン',52:'ニャース',58:'ガーディ',100:'ビリリダマ',133:'イーブイ',201:'アンノーン',327:'パッチール',351:'ポワルン',386:'デオキシス',479:'ロトム',487:'ギラティナ',492:'シェイミ',550:'バスラオ',585:'シキジカ',586:'メブキジカ',641:'トルネロス',642:'ボルトロス',645:'ランドロス',666:'ビビヨン',678:'ニャオニクス',720:'フーパ',741:'オドリドリ',746:'ヨワシ',774:'メテノ',800:'ネクロズマ',849:'ストリンダー',869:'マホイップ',888:'ザシアン',889:'ザマゼンタ',901:'ガチグマ',978:'シャリタツ',999:'コレクレー'};
   const FALLBACK_FORM_SPEC={201:['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','!','?'],37:['アローラ'],38:['アローラ'],386:['アタック','ディフェンス','スピード'],351:['たいよう','あまみず','ゆきぐも'],327:['模様1','模様2','模様3','模様4','模様5','模様6','模様7','模様8','模様9']};
   const $=id=>document.getElementById(id);
@@ -161,9 +162,6 @@
   let active='normal', visibleLimit=PAGE_SIZE, data=[], sourceStatus='loading', toastTimer=0;
   const sources={};
   let GO_FILES=new Set(),GO_BASE='',GO_RAW_BASE='';
-  let LOCAL_ATLAS_INFO=null;
-  let HOME_FILES=new Set(),HOME_SHINY=new Set(),HOME_FEMALE=new Set(),HOME_SHINY_FEMALE=new Set();
-  let HOME_BASE='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/';
 
 
   function readStorage(){
@@ -256,114 +254,83 @@
     const names={'Party Hat':'パーティハット','Witch Hat':'ハロウィン帽子','Santa Hat':'サンタ帽子','Holiday Outfit':'冬の衣装','Summer Hat':'サマースタイル','Straw Hat':'麦わら帽子','Detective Hat':'探偵帽子','Detective Hat 2023':'名探偵帽子（2023）','Flower Hat':'花飾り','Cake Hat':'ケーキ帽子','Safari Hat':'サファリ帽子','Top Hat':'シルクハット','Red Party Hat':'赤いパーティハット','Rayquaza Hat':'レックウザ帽子','Charizard Hat':'リザードン帽子','Lucario Hat':'ルカリオ帽子','Umbreon Hat':'ブラッキー帽子','Meloetta Hat':'メロエッタ帽子','Cherry Blossom':'桜飾り','Original Cap':'サトシ帽子','World Cap':'ワールドキャップ','New Year\'s Hat':'新年帽子','Rock Star':'ハードロック','Pop Star':'アイドル','Libre':'マスクド','Ph.D.':'ドクター','Clone Pikachu':'コピーピカチュウ','Copy 2019':'コピー','Spring 2020':'パーティハット（2020）','Goggles 2026':'ゴーグル（2026）','Swim 2025':'水泳衣装（2025）','Mimikyu Costume':'ミミッキュ仮装','Flying Pikachu':'そらをとぶ','Kariyushi Shirt':'かりゆしウェア','Cowboy Hat':'カウボーイ帽子','Halloween Hat':'ハロウィン帽子','Flower Crown':'花冠','Sunglasses':'サングラス','Holiday Wreath':'ホリデーリース','Sun Crown':'太陽の冠','Moon Crown':'月の冠','Marathon Visor':'マラソンバイザー','Willow\'s Lab Coat':'ウィロー博士の助手','Fossil Costume':'化石衣装','Party Hat':'パーティハット'};
     return names[human]||human;
   }
-  const FORM_HOME_IDS={
-    MAGEARNA_ORIGINAL_COLOR:10147,
-    CALYREX_ICE_RIDER:10193,CALYREX_SHADOW_RIDER:10194,
-    OGEPROM_TEAL:1017,OGERPON_TEAL:1017,
-    OGEPROM_WELLSPRING:10273,OGERPON_WELLSPRING:10273,
-    OGEPROM_HEARTHFLAME:10274,OGERPON_HEARTHFLAME:10274,
-    OGEPROM_CORNERSTONE:10275,OGERPON_CORNERSTONE:10275,
-    NECROZMA_ULTRA:10157, EISCUE_ICE:875, EISCUE_NOICE:10185,
-    PALAFIN_ZERO:964,PALAFIN_HERO:10256,
-    TERAPAGOS_TERASTAL:10276,TERAPAGOS_STELLAR:10277,
-    BASCULEGION_FEMALE:10248,
-    KORAIDON_APEX:1007,MIRAIDON_ULTIMATE:1008,
-    XERNEAS_ACTIVE:716
-  };
-  function homeImageId(entry){
-    return Number(FORM_HOME_IDS[entry.formProto]||entry.spriteID||entry.dex);
+  // These are the original Pokémon GO 256px transparent PNG assets, not artwork from other games.
+  // The manifest is an explicit allowlist. Never substitute a different Pokémon or form.
+  const GO_DEFAULT_FORM_BY_DEX={646:'NORMAL',876:'MALE',892:'SINGLE_STRIKE'};
+  function exactDexGoFile(entry,shiny=false){
+    const dex=Number(entry.dex),ending=shiny?'.s.icon.png':'.icon.png';
+    const known=file=>file&&GO_FILES.has(file)?file:null;
+    // Some species use a deliberately selected National Dex representative form.
+    if(entry.goFile){
+      return known(String(entry.goFile).replace(/(?:\.s)?\.icon\.png$/,ending));
+    }
+    const generic=known('pm'+dex+ending);
+    if(generic)return generic;
+    // The former-form identifiers explicitly specify which form the National Dex represents.
+    // Do not use the first available variant: that can show a different appearance.
+    for(const id of entry.formLegacyIds||[]){
+      const proto=String(id).split(':').slice(2).join(':');
+      if(!proto)continue;
+      for(const token of [proto,proto.replace(/^[^_]+_/,'')]){
+        const file=known('pm'+dex+'.f'+token+ending);
+        if(file)return file;
+      }
+    }
+    const defaultForm=GO_DEFAULT_FORM_BY_DEX[dex];
+    return defaultForm?known('pm'+dex+'.f'+defaultForm+ending):null;
   }
   function imageCandidates(entry,shiny=false){
     const out=[],seen=new Set(),cat=entry.category,dex=Number(entry.dex);
-    const add=(u,note)=>{
-      if(!u||seen.has(u))return;
-      seen.add(u);out.push({url:u,note:note||''});
-    };
-    const go=(file,note)=>{
+    const go=(file,note='')=>{
       if(!file||!GO_FILES.has(file))return;
-      if(GO_BASE)add(GO_BASE+file,note);
-      if(GO_RAW_BASE)add(GO_RAW_BASE+file,note);
+      for(const base of [GO_BASE,GO_RAW_BASE]){
+        if(!base)continue;
+        const url=base+file;
+        if(seen.has(url))continue;
+        seen.add(url);out.push({url,note});
+      }
     };
-    const home=(num,note,genderDir)=>{
-      const n=Number(num),files=genderDir==='female'?HOME_FEMALE:shiny?HOME_SHINY:HOME_FILES;
-      if(!Number.isInteger(n)||n<1||n>20000)return;
-      if(files.size&&!files.has(n))return;
-      add(HOME_BASE+(genderDir==='female'?'female/':shiny?'shiny/':'')+n+'.png',note);
-    };
-    const standard=(cat==='normal'||cat==='shiny');
-    const costume=isCostume(cat);
-    const wanted=entry.goFile?entry.goFile.replace(/(?:\.s)?\.icon\.png$/,shiny?'.s.icon.png':'.icon.png')
-      :standard?goFile(dex,'',shiny):null;
-    go(wanted,'');
-    // Form tabs only: use real Pokémon GO assets, never HOME, main-series official artwork, or non-GO sprites.
-    // The manifest is the allowlist. Do not show a different form as an image substitute.
+    const ending=shiny?'.s.icon.png':'.icon.png';
+    const specified=entry.goFile
+      ?String(entry.goFile).replace(/(?:\.s)?\.icon\.png$/,ending):null;
+    if(cat==='normal'||cat==='shiny'){
+      go(exactDexGoFile(entry,shiny));
+      return out;
+    }
     if(cat==='forms'||cat==='shinyforms'){
-      if(!wanted||!GO_FILES.has(wanted)){
+      go(specified);
+      if(!out.length){
         const proto=String(entry.formProto||'');
-        const tail=proto.replace(/^[^_]+_/,'');
-        const ending=shiny?'.s.icon.png':'.icon.png';
-        const exact=[
-          'pm'+dex+'.f'+proto+ending,
-          'pm'+dex+'.f'+tail+ending
-        ];
-        // A reference-only representative can share the exact same species' generic GO portrait.
-        if(entry.mirrorOf)exact.push('pm'+dex+ending);
-        for(const file of exact){if(GO_FILES.has(file)){go(file,'');break;}}
+        if(proto){
+          const suffix=proto.replace(/^[^_]+_/,'');
+          for(const token of [proto,suffix]){
+            go('pm'+dex+'.f'+token+ending);
+            if(out.length)break;
+          }
+        }
+        // Read-only representative cards display the same sprite as their National Dex entry.
+        if(!out.length&&entry.mirrorOf)go('pm'+dex+ending);
+        // Scatterbug/Spewpa patterns have identical appearance before evolution.
+        if(!out.length&&(dex===664||dex===665)&&/^S(?:CATTERBUG|PEWPA)_/.test(proto))
+          go('pm'+dex+ending,'進化前の姿は共通です');
       }
       return out;
     }
-
-    if(standard&&!wanted){
-      // Most GO variants without a base icon have a playable default forme.
-      const prefix='pm'+dex+'.f',ending=shiny?'.s.icon.png':'.icon.png';
-      const representative=[...GO_FILES].filter(x=>x.startsWith(prefix)&&x.endsWith(ending))
-        .sort((a,b)=>a.localeCompare(b))[0];
-      go(representative,'GOの代表画像（姿が異なる場合があります）');
-    }
-    if(costume&&entry.artFile){
-      const uri=String(entry.artBase||'')+entry.artFile.replace('.s.icon.png',shiny?'.s.icon.png':'.icon.png');
-      if(/^https:\/\/cdn\.jsdelivr\.net\/gh\/PokeMiners\//.test(uri))add(uri,'');
-    }
-    // If exact seasonal-costume art is unavailable, label the correct GO size sprite as reference only.
-    // Do not present the non-costumed sprite as a costume image.
-    if(costume&&entry.sizeReferenceGoFile&&!out.length){
-      const sizeFile=entry.sizeReferenceGoFile.replace(/(?:\.s)?\.icon\.png$/,shiny?'.s.icon.png':'.icon.png');
-      go(sizeFile,'サイズ参考用のPokémon GO画像（衣装は反映されていません）');
-    }
-    // Never use a generic shiny/ordinary Pokémon as if it wore the selected costume.
-    if(costume)return out;
-    if(isGender(cat))return out;
-    if(!standard&&!costume){
-      // Scatterbug and Spewpa have the same visible appearance across habitat patterns.
-      if((dex===664||dex===665)&&/^S(?:CATTERBUG|PEWPA)_/.test(entry.formProto||'')){
-        go(goFile(dex,'',shiny),'進化前の姿は共通です');
+    if(isCostume(cat)){
+      go(specified);
+      if(!out.length&&entry.sizeReferenceGoFile){
+        const file=String(entry.sizeReferenceGoFile).replace(/(?:\.s)?\.icon\.png$/,ending);
+        go(file,'サイズ参考用のGO画像（衣装は反映されていません）');
       }
-      // The currently mined GO sprites stop at Spinda form 08.
-      if(dex===327&&!wanted){
-        go(goFile(dex,'f08',shiny),'参考：別の模様です');
-      }
-      if(dex===716&&entry.formProto==='XERNEAS_ACTIVE'){
-        go(goFile(dex,'',shiny),'GO参考画像');
-      }
-      const id=homeImageId(entry);
-      const sameForm=id!==dex || ['EISCUE_ICE','PALAFIN_ZERO','OGERPON_TEAL'].includes(entry.formProto);
-      home(id,sameForm?'HOME参考画像（同じ姿）':'HOME参考画像（姿が異なる場合があります）');
-      if(id!==dex)home(dex,'HOME参考画像（通常の姿）');
-    }else if(costume){
-      home(dex,'HOME参考画像（衣装は反映されません）');
-    }else{
-      home(homeImageId(entry),'HOME参考画像');
+      // Never use an uncostumed or different-costume image as an exact costume image.
+      return out;
     }
-    // Standard PokeAPI sprites make an additional safety net for older devices.
-    if(dex>=1&&dex<=1025){
-      add('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/'+dex+'.png','公式イラスト参考画像');
-      add('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+dex+'.png','ドット絵参考画像');
-    }
+    // Gender variants are selected separately by genderSprite.
     return out;
   }
   function spriteUrl(entry,shiny=false){return imageCandidates(entry,shiny)[0]?.url||null;}
   function renderImageOptions(candidates,label){
-    if(!candidates.length)return '<span class="art-missing">画像資料なし</span>';
+    if(!candidates.length)return '<span class="art-missing">GO画像未取得</span>';
     const opts=esc(JSON.stringify(candidates));
     const first=candidates[0];
     return '<img loading="lazy" decoding="async" src="'+esc(first.url)+'" alt="'+esc(label)+'" data-image-options="'+opts+'" data-image-index="0">'+
@@ -727,22 +694,15 @@
     els.status.className='notice';
     els.status.innerHTML='<span class="pulse"></span>リポジトリ内の図鑑・画像索引を読み込んでいます…';
     const settled=await Promise.allSettled([
-      fetchJSON([LOCAL_CATALOG+'?v='+VERSION]),fetchJSON([GO_ASSET_MANIFEST+'?v='+VERSION]),fetchJSON([LOCAL_ATLAS+'?v='+VERSION])
+      fetchJSON([LOCAL_CATALOG+'?v='+VERSION]),fetchJSON([GO_ASSET_MANIFEST+'?v='+VERSION])
     ]);
     const pack=settled[0].status==='fulfilled'?settled[0].value:null;
     const spriteInfo=settled[1].status==='fulfilled'?settled[1].value:{};
-    LOCAL_ATLAS_INFO=settled[2].status==='fulfilled'?settled[2].value:null;
     GO_FILES=new Set(Array.isArray(spriteInfo.available)?spriteInfo.available:[]);
     GO_BASE=typeof spriteInfo.base==='string'&&spriteInfo.base.startsWith('https://cdn.jsdelivr.net/gh/PokeMiners/')?spriteInfo.base:'';
     const revision=String(spriteInfo.commit||'');
     GO_RAW_BASE=/^[a-f0-9]{40}$/.test(revision)?
       'https://raw.githubusercontent.com/PokeMiners/pogo_assets/'+revision+'/Images/Pokemon%20-%20256x256/Addressable%20Assets/':'';
-    const home=spriteInfo.home||{};
-    if(typeof home.base==='string'&&home.base.startsWith('https://raw.githubusercontent.com/PokeAPI/sprites/'))HOME_BASE=home.base;
-    HOME_FILES=new Set(Array.isArray(home.files)?home.files:[]);
-    HOME_SHINY=new Set(Array.isArray(home.shiny)?home.shiny:[]);
-    HOME_FEMALE=new Set(Array.isArray(home.female)?home.female:[]);
-    HOME_SHINY_FEMALE=new Set(Array.isArray(home.shinyFemale)?home.shinyFemale:[]);
     const rows=Array.isArray(pack?.rows)?pack.rows.map(x=>({...x})):[];
     if(rows.length<100){
       data=fallback().sort(sortEntries);
@@ -762,13 +722,13 @@
       migrateFormerFormChecks(unique);
       migrateCostumeExclusions(unique);
       data=[...unique,...makeRepresentativeMirrors(unique,pack)].sort(sortEntries);
-      sourceStatus=LOCAL_ATLAS_INFO?'ready':'partial';
-      if(LOCAL_ATLAS_INFO&&GO_FILES.size){
+      sourceStatus=GO_FILES.size?'ready':'partial';
+      if(GO_FILES.size){
         els.status.className='notice success';
-        els.status.textContent='図鑑・画像・2026年11月7日時点の実装状況を読み込みました。未実装・未確認を表示すると、そのチェックも進捗に反映します。';
+        els.status.textContent='図鑑とPokémon GO透過画像を読み込みました。画像未取得の項目は別作品・別の姿で代用せず表示します。';
       }else{
         els.status.className='notice warn';
-        els.status.textContent='図鑑は読み込めましたが、画像索引の一部を取得できません。外部の参考画像が表示される場合があります。';
+        els.status.textContent='図鑑は読み込めましたが、Pokémon GO画像索引を取得できません。画像は代用せず未取得として表示します。';
       }
     }
     if(force)message('リポジトリ内の図鑑を再読み込みしました');
@@ -795,63 +755,23 @@
     els.summary.innerHTML=pg.map(([c,p])=>`<button type="button" class="summary ${active===c.id?'selected':''}" data-cat="${c.id}"><small>${esc(c.subtitle)}</small><h3>${esc(c.title)}</h3><div class="stat"><strong>${p.pct}%</strong><span>${p.owned}/${p.total}</span></div><div class="mini-track"><span style="width:${p.pct}%"></span></div></button>`).join('');
     els.tabs.innerHTML=pg.map(([c,p])=>`<button type="button" role="tab" aria-selected="${active===c.id}" class="${active===c.id?'active':''}" data-cat="${c.id}">${esc(c.short)}<span class="tab-count">${p.entries.toLocaleString()}</span></button>`).join('');
   }
-  // The shiny gender tab must never fall back to a non-shiny portrait.
+  // Gender differences must use the exact male/female GO game asset; no HOME/main-series fallbacks.
   function genderSprite(file,label,dex,sex,shiny=false){
     const candidates=[],seen=new Set();
-    const add=(url,note)=>{
-      if(!url||seen.has(url))return;
-      seen.add(url);candidates.push({url,note:note||''});
-    };
-    const actualFile=shiny&&file?file.replace(/\.icon\.png$/,'.s.icon.png'):file;
+    const actualFile=file?String(file).replace(/(?:\.s)?\.icon\.png$/,shiny?'.s.icon.png':'.icon.png'):null;
     if(actualFile&&GO_FILES.has(actualFile)){
-      if(GO_BASE)add(GO_BASE+actualFile,'');
-      if(GO_RAW_BASE)add(GO_RAW_BASE+actualFile,'');
-    }
-    const id=Number(dex),female=sex==='female';
-    const fallbackId=id===902&&female?10248:id;
-    if(shiny){
-      if(female&&HOME_SHINY_FEMALE.has(fallbackId))
-        add(HOME_BASE+'shiny/female/'+fallbackId+'.png','HOME色違い参考画像（メス）');
-      if(female)add(SPRITE+'shiny/female/'+fallbackId+'.png','本編参考画像（色違い・メス）');
-      if(!HOME_SHINY.size||HOME_SHINY.has(fallbackId))
-        add(HOME_BASE+'shiny/'+fallbackId+'.png','HOME色違い参考画像'+(female?'（性差未反映）':''));
-      add(SPRITE+'shiny/'+fallbackId+'.png','本編色違い参考画像'+(female?'（性差未反映）':''));
-    }else{
-      if(female&&(!HOME_FEMALE.size||HOME_FEMALE.has(id)))
-        add(HOME_BASE+'female/'+id+'.png','HOME参考画像'+(id===902?'（GO未実装）':''));
-      if(female&&id===902)add(HOME_BASE+'10248.png','HOME参考画像（メス・GO未実装）');
-      if(!HOME_FILES.size||HOME_FILES.has(fallbackId))
-        add(HOME_BASE+fallbackId+'.png','HOME参考画像'+(id===902?'（GO未実装）':''));
-      if(!candidates.length&&id>=1&&id<=1025)
-        add('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/'+id+'.png','公式イラスト参考画像（性差未反映）');
+      for(const base of [GO_BASE,GO_RAW_BASE]){
+        if(!base)continue;
+        const url=base+actualFile;
+        if(seen.has(url))continue;
+        seen.add(url);candidates.push({url,note:''});
+      }
     }
     return renderImageOptions(candidates,label);
   }
-  function localAtlasSprite(x,shiny){
-    if(!LOCAL_ATLAS_INFO||!['normal','shiny'].includes(x.category))return null;
-    // Respect explicitly selected default-form images in the National Dex; the atlas may show an older representative.
-    if([201,666,710,711,718,774].includes(x.dex)&&x.goFile)return null;
-    const missing=shiny?LOCAL_ATLAS_INFO.shinyMissing:LOCAL_ATLAS_INFO.normalMissing;
-    if(!Array.isArray(missing)||missing.includes(x.dex)||x.dex<1||x.dex>1025)return null;
-    const atlas=shiny?LOCAL_ATLAS_INFO.shiny:LOCAL_ATLAS_INFO.normal;
-    if(atlas!=='images/pogo-shiny-atlas.webp'&&atlas!=='images/pogo-normal-atlas.webp')return null;
-    const tile=104,cols=16;
-    const column=(x.dex-1)%cols,row=Math.floor((x.dex-1)/cols);
-    const columns=cols,rows=Math.ceil((Number(LOCAL_ATLAS_INFO.maxDex)||1025)/cols);
-    // CSS percentage positions are relative to (background size - element size).
-    // This keeps each tile aligned when its card becomes narrower on mobile.
-    const posX=(100*column/(columns-1)).toFixed(6);
-    const posY=(100*row/(rows-1)).toFixed(6);
-    const label=esc(x.name+(shiny?' 色違い':'')+'：GoogleドライブのPokémon GO図鑑画像');
-    return '<span class="atlas-sprite" role="img" aria-label="'+label+'" title="'+label+
-      '" style="background-image:url(\'./'+atlas+'\');background-position:'+posX+'% '+posY+'%"></span>';
-  }
   function spriteTag(x,shiny){
     const candidates=imageCandidates(x,shiny);
-    if((x.category==='forms'||x.category==='shinyforms')&&!candidates.length)
-      return '<span class="art-missing">GO画像未取得</span>';
-    return localAtlasSprite(x,shiny)||
-      renderImageOptions(candidates,x.name+' '+x.sub+(shiny?' 色違い':''));
+    return renderImageOptions(candidates,x.name+' '+x.sub+(shiny?' 色違い':''));
   }
   function makeCard(x){
     const gender=isGender(x.category),excluded=Boolean(state.excluded[x.id]),yes=isOwned(x);
