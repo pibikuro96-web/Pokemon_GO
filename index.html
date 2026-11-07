@@ -49,6 +49,10 @@
 #region-progress-help{display:block;margin-top:7px;font-size:10px;line-height:1.5;color:#6a7f99}
 @media(max-width:640px){.region-progress{padding:10px 12px}.region-progress-main>strong{font-size:12px}#region-progress-count{font-size:17px}}
 .card-badge.unverified-badge{color:#667c92}
+.representative-mirror .card-main{cursor:default}
+.representative-mirror .mirror-heading{font-size:10px;color:#61748c;font-weight:700}
+.representative-mirror .card-foot{font-size:10px;white-space:normal;text-align:center}
+
 @media(max-width:640px){.unverified-badge{font-size:8px}}
 .costume-date{display:block;color:#647991;font-size:9px;line-height:1.3;margin-top:4px;font-variant-numeric:tabular-nums}
 @media(max-width:640px){.costume-date{font-size:8px}}
@@ -67,7 +71,7 @@
     <div class="notice" id="data-status" role="status"><span class="pulse"></span> ポケモンのデータを読み込んでいます…</div>
     <section class="summary-grid" id="summary-grid" aria-label="カテゴリ別の達成状況"></section>
     <main class="workspace">
-      <div class="workspace-top"><div><div class="eyebrow dark">YOUR COLLECTION</div><h2>コンプチェッカー</h2></div><div class="workspace-actions"><button type="button" class="button secondary" id="order-open" hidden>ピカチュウ順序変更</button><button type="button" class="button secondary" id="bulk-select" title="現在の絞り込みに一致する全項目を入手済みにする">✓ 全て選択</button><button type="button" class="button secondary" id="bulk-clear" title="現在の絞り込みに一致する全項目のチェックを解除">全て解除</button><a class="button secondary" href="./missing-pokemon.csv" download="pokemon-go-missing-images.csv" title="Googleドライブにある図鑑画像で未確認の230匹の一覧">不足画像CSV（230種）</a><a class="button secondary" href="./pika-costume-audit.csv" download="pika-costume-audit.csv" title="初実装順にピカチュウ衣装104種類と色違いを確認">衣装104件の精査CSV</a><a class="button secondary" href="./form-audit.csv" download="form-audit.csv" title="125種族・336種類の別フォルムの通常色と色違いを照合">フォルム336件の精査CSV</a><button type="button" class="button secondary" id="add-open">＋ 項目を追加</button></div></div>
+      <div class="workspace-top"><div><div class="eyebrow dark">YOUR COLLECTION</div><h2>コンプチェッカー</h2></div><div class="workspace-actions"><button type="button" class="button secondary" id="order-open" hidden>ピカチュウ順序変更</button><button type="button" class="button secondary" id="bulk-select" title="現在の絞り込みに一致する全項目を入手済みにする">✓ 全て選択</button><button type="button" class="button secondary" id="bulk-clear" title="現在の絞り込みに一致する全項目のチェックを解除">全て解除</button><a class="button secondary" href="./missing-pokemon.csv" download="pokemon-go-missing-images.csv" title="Googleドライブにある図鑑画像で未確認の230匹の一覧">不足画像CSV（230種）</a><a class="button secondary" href="./pika-costume-audit.csv" download="pika-costume-audit.csv" title="初実装順にピカチュウ衣装104種類と色違いを確認">衣装104件の精査CSV</a><a class="button secondary" href="./form-audit.csv" download="form-audit.csv" title="125種族・335種類の収集対象と65種類の代表姿（対象外）を照合">フォルム400件（うち対象外65）の精査CSV</a><button type="button" class="button secondary" id="add-open">＋ 項目を追加</button></div></div>
       <nav class="tabs" id="category-tabs" aria-label="カテゴリ切り替え"></nav>
       <section class="controls" aria-label="表示条件">
         <div class="search-wrap"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="ポケモン名・図鑑番号・フォルム名で検索" autocomplete="off" aria-label="検索" /></div>
@@ -98,7 +102,7 @@
 /* Pokémon GO personal collection tracker. No accounts or analytics. */
 (() => {
   'use strict';
-  const VERSION = '2.9.6';
+  const VERSION = '2.9.7';
   const STORE_KEY = 'pogo-personal-collection-v1';
   const CACHE_KEY = 'pogo-catalog-cache-v1';
   const PAGE_SIZE = 120;
@@ -107,9 +111,9 @@
   const percent=(owned,total)=>total?Math.round(owned/total*10000)/100:0;
   const CATS = [
     {id:'normal', title:'通常ポケモン', short:'通常', subtitle:'全国図鑑', note:'全国図鑑番号ごとに独立してチェックします。'},
-    {id:'forms', title:'別フォルム・リージョン',short:'フォルム',subtitle:'姿・地域違い',note:'通常図鑑の代表姿（ルガルガン・まひる、オドリドリ・めらめら等）を重複登録せず、それ以外の姿を管理します。未実装・確認中は上部の表示切替をオンにしたときだけ表示します。'},
+    {id:'forms', title:'別フォルム・リージョン',short:'フォルム',subtitle:'姿・地域違い',note:'通常図鑑へ統合した代表姿は「対象外」として参照表示し、達成率には二重計上しません。リージョン専用の通常姿やバトル中だけのモルペコは除外します。未実装・確認中は表示切替オンで表示します。'},
     {id:'shiny',title:'色違い・通常',short:'色違い',subtitle:'通常の色違い',note:'通常種の色違いを通常種とは独立してチェックします。'},
-    {id:'shinyforms',title:'色違い・別フォルム',short:'色違いフォルム',subtitle:'姿・地域違い',note:'通常図鑑の代表姿と重複する色違いを除き、追加フォルムの色違いだけを独立してチェックします。未実装・未解禁・確認中は上部の表示切替をオンにしたときだけ表示します。'},
+    {id:'shinyforms',title:'色違い・別フォルム',short:'色違いフォルム',subtitle:'姿・地域違い',note:'通常図鑑の代表色違いは「対象外」として参照表示し、チェック・進捗は通常色違い側で管理します。リージョンだけの通常姿は追加しません。未実装・未解禁・確認中は表示切替オンで表示します。'},
     {id:'gender',title:'オス・メス差分',short:'オス・メス',subtitle:'性差のある姿',note:'本編で性別によって姿が違うポケモンを、オスとメス別々にチェックします。'},
     {id:'shinygender',title:'色違い・オス・メス差分',short:'色違いオス・メス',subtitle:'色違いの性差',note:'色違いのオスとメスを別々に管理します。通常色のオス・メスとは独立してチェックできます。'},
     {id:'costumepika',title:'衣装・ピカチュウ',short:'衣装ピカチュウ',subtitle:'通常色・実装順',note:'ピカチュウ衣装を初実装の年代・イベント順に表示します。104種類（実装済み101・今後3）を管理します。日付未確認の一部は同年内で暫定順です。'},
@@ -147,7 +151,7 @@
   const eligibility=x=>!state.excluded[x.id]&&releaseOf(x)==='released';
   // Hidden, unverified entries do not count. Showing them opts into their progress slots.
   function countedSlots(x){
-    if(state.excluded[x.id]||(!els.showUnreleased.checked&&releaseOf(x)!=='released'))return [];
+    if(x.mirrorOf||state.excluded[x.id]||(!els.showUnreleased.checked&&releaseOf(x)!=='released'))return [];
     if(isGender(x.category))return [x.id+':male',x.id+':female'];
     if(isShinyCostume(x.category)&&x.shinyAvailable===false)return [];
     return [ownedKey(x)];
@@ -617,6 +621,29 @@
     if(overlap.length)console.warn('Event form remains in two tables',overlap.map(x=>x.id));
     return unique;
   }
+  // The displayed representative cards are read-only aliases of the normal/shiny Dex.
+  // They have no individual save keys or progress slots and are never reconstructed for regional-only species.
+  function makeRepresentativeMirrors(rows,pack){
+    const labels=pack?.formAudit?.representativeMirrors?.labelByDex||{};
+    const excludedDex=new Set(pack?.formAudit?.representativeMirrors?.excludedDex||[]);
+    const alternateDex=new Set(rows.filter(x=>x.category==='forms'&&x.formKind==='alternate').map(x=>x.dex));
+    const known=new Set(rows.map(x=>x.id)),baseByDex=new Map(rows.filter(x=>x.category==='normal').map(x=>[x.dex,x]));
+    const out=[];
+    for(const x of rows.filter(x=>x.category==='normal'&&x.formLegacyIds?.length)){
+      if(excludedDex.has(x.dex)||!alternateDex.has(x.dex)||!labels[x.dex])continue;
+      for(const [baseCat,mirrorCat] of [['normal','forms'],['shiny','shinyforms']]){
+        const base=baseCat==='normal'?x:rows.find(y=>y.id==='shiny:'+x.dex);
+        const legacy=base?.formLegacyIds?.find(id=>id.startsWith((mirrorCat==='forms'?'form:':'shinyform:')+x.dex+':'));
+        if(!legacy||known.has(legacy))continue;
+        out.push({id:legacy,category:mirrorCat,dex:x.dex,name:x.name,sub:labels[x.dex],
+          english:x.english,gen:x.gen,goFile:base.goFile||x.goFile,
+          formProto:legacy.split(':').slice(2).join(':'),formKind:'alternate',
+          sortOrder:x.dex===666?0:-1,mirrorOf:base.id,releaseStatus:base.releaseStatus||'released'});
+        known.add(legacy);
+      }
+    }
+    return out;
+  }
   function addCustomToCatalog(list){
     const ids=new Set(list.map(x=>x.id));
     for(const x of state.custom){
@@ -662,7 +689,7 @@
       migratePumpkinBaseV296();
       migrateFormerFormChecks(unique);
       migrateCostumeExclusions(unique);
-      data=unique.sort(sortEntries);
+      data=[...unique,...makeRepresentativeMirrors(unique,pack)].sort(sortEntries);
       sourceStatus=LOCAL_ATLAS_INFO?'ready':'partial';
       if(LOCAL_ATLAS_INFO&&GO_FILES.size){
         els.status.className='notice success';
@@ -731,7 +758,7 @@
   function localAtlasSprite(x,shiny){
     if(!LOCAL_ATLAS_INFO||!['normal','shiny'].includes(x.category))return null;
     // Respect explicitly selected default-form images in the National Dex; the atlas may show an older representative.
-    if([201,710,711].includes(x.dex)&&x.goFile)return null;
+    if([201,666,710,711].includes(x.dex)&&x.goFile)return null;
     const missing=shiny?LOCAL_ATLAS_INFO.shinyMissing:LOCAL_ATLAS_INFO.normalMissing;
     if(!Array.isArray(missing)||missing.includes(x.dex)||x.dex<1||x.dex>1025)return null;
     const atlas=shiny?LOCAL_ATLAS_INFO.shiny:LOCAL_ATLAS_INFO.normal;
@@ -760,6 +787,12 @@
     const badge=excluded?'<span class="card-badge excluded-badge">対象外</span>':
       release==='unreleased'?'<span class="card-badge" title="'+esc(x.releaseDate?'登場予定 '+x.releaseDate:unreleasedLabel)+'">'+unreleasedLabel+'</span>':
       release==='unverified'?'<span class="card-badge unverified-badge" title="実装・色違いの解禁を確認中">確認中</span>':'';
+    if(x.mirrorOf){
+      const shiny=x.category==='shinyforms',owned=Boolean(state.owned[x.mirrorOf]);
+      const n=String(x.dex).padStart(4,'0');
+      const label=esc(x.name+' '+x.sub+(shiny?' 色違い':''));
+      return `<article class="pokemon-card excluded representative-mirror" data-id="${esc(x.id)}"><div class="card-header"><span class="card-no">No.${n}</span><span class="mirror-heading">通常図鑑の代表</span></div><span class="card-badge excluded-badge">対象外</span><div class="card-main"><div class="sprite">${spriteTag(x,shiny)}</div><span class="card-name">${esc(x.name)}</span><span class="card-sub">${esc(x.sub)}</span></div><div class="card-foot" title="${label}は通常図鑑側で管理">${owned?'✓ 通常図鑑で入手済み':'通常図鑑で管理（未入手）'}</div></article>`;
+    }
     const unique=esc(x.id),n=String(x.dex).padStart(4,'0');
     const main=`<div class="card-header"><span class="card-no">No.${n}</span><button type="button" class="mini-menu" data-action="exclude" data-id="${unique}" aria-label="${esc(x.name)}を${excluded?'集計に含める':'集計対象外にする'}" title="集計対象から${excluded?'戻す':'除外'}">⋯</button></div>${badge}`;
     const shiny=x.category==='shiny'||x.category==='shinyforms'||x.category==='shinygender'||isShinyCostume(x.category);
@@ -785,7 +818,8 @@
       if(selectedGen!=='all'&&String(x.gen)!==selectedGen)return false;
        if((active==='forms'||active==='shinyforms')&&els.formType.value!=='all'&&x.formKind!==els.formType.value)return false;
       if(query&&!norm(`${x.dex} ${String(x.dex).padStart(4,'0')} ${x.name} ${x.sub} ${x.english||''} ${x.formProto||''} ${x.firstReleaseYear||''}`).includes(query))return false;
-      if(status==='excluded')return Boolean(state.excluded[x.id]);
+      if(status==='excluded')return Boolean(x.mirrorOf||state.excluded[x.id]);
+      if(x.mirrorOf)return status==='all';
       if(state.excluded[x.id])return status==='all';
       if(status==='owned'&&!isOwned(x))return false;
       if(status==='missing'&&isOwned(x))return false;
@@ -823,6 +857,8 @@
     const costumeDetail=!els.showUnreleased.checked?'':active==='costumepika'?' （登場済み101・予定3）':
       active==='shinycostumepika'?' （解禁照合済み99・未解禁2・予定3）':'';
     $('visible-count').textContent=`${r.length.toLocaleString()} 件`+(els.search.value||els.generation.value!=='all'||els.ownership.value!=='all'?'':costumeDetail);
+    const mirrors=r.filter(x=>x.mirrorOf).length;
+    if(mirrors)$('visible-count').textContent+=' （対象外の代表姿 '+mirrors+' 件）';
     const rows=r.slice(0,visibleLimit);els.cards.innerHTML=rows.map(makeCard).join('');
     $('empty').hidden=Boolean(r.length);els.loadMore.hidden=r.length<=visibleLimit;
     if(r.length>visibleLimit)els.loadMore.textContent=`さらに表示する （${visibleLimit.toLocaleString()} / ${r.length.toLocaleString()} 件）`;
@@ -830,7 +866,7 @@
   function render(){renderSummary();renderCards();}
   function changeCat(cat){if(!CATS.some(c=>c.id===cat))return;active=cat;visibleLimit=pageLimitFor(cat);els.formType.hidden=!(cat==='forms'||cat==='shinyforms');$('order-open').hidden=cat!=='costumepika'&&cat!=='shinycostumepika';render();}
   function toggleOwnership(id,kind){
-    const x=data.find(r=>r.id===id);if(!x)return;
+    const x=data.find(r=>r.id===id);if(!x||x.mirrorOf)return;
     if(isDual(x.category)&&!['male','female'].includes(kind))return;
     if(isShinyCostume(x.category)&&x.shinyAvailable===false)return;
     const k=isDual(x.category)?id+':'+kind:ownedKey(x);
@@ -838,7 +874,7 @@
     persist();render();
   }
   function bulkUpdate(select){
-    const cat=CATS.find(c=>c.id===active),rows=filteredRows().filter(x=>!state.excluded[x.id]);
+    const cat=CATS.find(c=>c.id===active),rows=filteredRows().filter(x=>!x.mirrorOf&&!state.excluded[x.id]);
     if(!rows.length){message('選択対象のポケモンがありません');return;}
     const verb=select?'すべて入手済みに登録':'すべて未入手に戻す';
     if(!window.confirm(cat.title+'：検索・絞り込みに一致する'+rows.length+'件を'+verb+'しますか？\n続きページも含みます。他のタブは変更しません。'))return;
@@ -852,7 +888,7 @@
     persist();render();
     message(rows.length+'件を'+(select?'入手済みに登録しました':'未入手に戻しました'));
   }
-  function toggleExclude(id){const x=data.find(r=>r.id===id);if(!x)return;if(state.excluded[id])delete state.excluded[id];else state.excluded[id]=true;persist();render();message(state.excluded[id]?'達成率の集計対象から外しました':'達成率の集計対象に戻しました');}
+  function toggleExclude(id){const x=data.find(r=>r.id===id);if(!x||x.mirrorOf)return;if(state.excluded[id])delete state.excluded[id];else state.excluded[id]=true;persist();render();message(state.excluded[id]?'達成率の集計対象から外しました':'達成率の集計対象に戻しました');}
   function message(text){els.toast.textContent=text;els.toast.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>els.toast.classList.remove('show'),2700);}
   function download(content,filename,type){const blob=new Blob([content],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),10000);}
   function exportJSON(){
@@ -861,7 +897,7 @@
   function csvValue(v){return '"'+String(v??'').replace(/"/g,'""')+'"';}
   function exportCSV(){
     const header=['カテゴリ','図鑑番号','ポケモン名','フォルム・衣装','通常入手済み','衣装通常色','衣装色違い','オス','メス','集計対象外','実装状況','衣装色違いの解禁'];
-    const rows=data.map(x=>[CATS.find(c=>c.id===x.category)?.title||x.category,x.dex,x.name,x.sub,isDual(x.category)||isCostume(x.category)?'':!!state.owned[ownedKey(x)],isBaseCostume(x.category)?!!state.owned[ownedKey(x)]:'',isShinyCostume(x.category)?!!state.owned[ownedKey(x)]:'',isGender(x.category)?!!state.owned[x.id+':male']:'',isGender(x.category)?!!state.owned[x.id+':female']:'',!!state.excluded[x.id],releaseOf(x)==='released'?'実装確認済み':releaseOf(x)==='unreleased'?'未実装':'未確認',isShinyCostume(x.category)?(releaseOf(x)==='released'?'解禁確認済み':'解禁未確認'):'']);
+    const rows=data.filter(x=>!x.mirrorOf).map(x=>[CATS.find(c=>c.id===x.category)?.title||x.category,x.dex,x.name,x.sub,isDual(x.category)||isCostume(x.category)?'':!!state.owned[ownedKey(x)],isBaseCostume(x.category)?!!state.owned[ownedKey(x)]:'',isShinyCostume(x.category)?!!state.owned[ownedKey(x)]:'',isGender(x.category)?!!state.owned[x.id+':male']:'',isGender(x.category)?!!state.owned[x.id+':female']:'',!!state.excluded[x.id],releaseOf(x)==='released'?'実装確認済み':releaseOf(x)==='unreleased'?'未実装':'未確認',isShinyCostume(x.category)?(releaseOf(x)==='released'?'解禁確認済み':'解禁未確認'):'']);
     download('\ufeff'+[header,...rows].map(r=>r.map(csvValue).join(',')).join('\r\n'),'pokemon-go-checker-'+new Date().toISOString().slice(0,10)+'.csv','text/csv;charset=utf-8');message('CSVを書き出しました');
   }
   function importJSON(file){
