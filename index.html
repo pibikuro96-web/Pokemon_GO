@@ -104,7 +104,7 @@
 /* Pokémon GO personal collection tracker. No accounts or analytics. */
 (() => {
   'use strict';
-  const VERSION = '2.9.27';
+  const VERSION = '2.9.28';
   const STORE_KEY = 'pogo-personal-collection-v1';
   const CACHE_KEY = 'pogo-catalog-cache-v1';
   const VIEW_KEY = 'pogo-view-position-v1';
@@ -541,8 +541,8 @@
       const pb=Number.isInteger(b.sortOrder)?b.sortOrder:9999;
       if(pa!==pb)return pa-pb;
     }
-    // Spooky Festival Pumpkaboo sizes have a fixed order in both costume tabs.
-    if(a.dex===710&&isCostume(a.category)&&b.dex===710&&isCostume(b.category)&&a.costumeSizeOrder&&b.costumeSizeOrder)
+    // Halloween costume sizes are ordered Small, Average, Large, Super for both species.
+    if((a.dex===710||a.dex===711)&&a.dex===b.dex&&a.category===b.category&&isCostume(a.category)&&a.costumeSizeOrder&&b.costumeSizeOrder)
       return a.costumeSizeOrder-b.costumeSizeOrder;
     return a.sub.localeCompare(b.sub,'ja');
   }
