@@ -63,11 +63,10 @@
 .status-sprite::before{content:"";position:absolute;inset:7px 2px;border-radius:50%;z-index:0;opacity:.75;pointer-events:none}
 .status-shadow::before{background:radial-gradient(ellipse at center,#9f7de46e,#8051c72c 55%,transparent 75%)}
 .status-purified::before{background:radial-gradient(ellipse at center,#e0f8ffdb,#b4eaf75c 55%,transparent 75%)}
-.status-lucky::before{background:radial-gradient(ellipse at center,#f9d97599,#ffebaa4c 56%,transparent 75%)}
 .status-sprite img,.status-sprite .art-missing{position:relative;z-index:1}
 .status-mark{position:absolute;right:3px;top:0;border-radius:6px;padding:1px 4px;font-size:9px;font-weight:900;z-index:2;background:#ece4ff;color:#6f49a3;pointer-events:none}
 .status-purified .status-mark{background:#e1f7fb;color:#337e94}
-.status-lucky .status-mark{background:#fff0bd;color:#926c16}
+@media(max-width:640px){.summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
 </head>
 <body>
@@ -113,7 +112,7 @@
 /* Pokémon GO personal collection tracker. No accounts or analytics. */
 (() => {
   'use strict';
-  const VERSION = '2.9.33';
+  const VERSION = '2.9.34';
   const STORE_KEY = 'pogo-personal-collection-v1';
   const CACHE_KEY = 'pogo-catalog-cache-v1';
   const VIEW_KEY = 'pogo-view-position-v1';
@@ -137,11 +136,7 @@
     {id:'gmax',title:'キョダイマックス（G-MAX）',short:'G-MAX',subtitle:'キョダイマックス',note:'キョダイマックスできる個体を捕獲・入手したらチェックします。普通のダイマックス個体とは区別し、未実装候補も切り替えて参照できます。'},
     {id:'shinygmax',title:'色違い・キョダイマックス',short:'色違いG-MAX',subtitle:'色違いキョダイマックス',note:'色違いでキョダイマックス可能な個体を捕獲・入手したらチェックします。色違い未解禁の種類は通常集計に含めません。'},
     {id:'shadow',title:'シャドウポケモン',short:'シャドウ',subtitle:'通常色・シャドウ',note:'過去にシャドウとして登場したポケモンを図鑑番号別にチェックします。現在のロケット団の出現対象だけではなく歴代の実装を含みます。'},
-    {id:'shinyshadow',title:'色違い・シャドウポケモン',short:'色違いシャドウ',subtitle:'色違い・シャドウ',note:'色違いシャドウを通常色と独立してチェックします。通常の色違いを入手しただけではチェックしません。'},
     {id:'purified',title:'ライト（リトレーン）ポケモン',short:'ライト',subtitle:'通常色・リトレーン',note:'シャドウをリトレーンした個体を図鑑番号ごとにチェックします。シャドウ・通常の個体とは別管理です。'},
-    {id:'shinypurified',title:'色違い・ライトポケモン',short:'色違いライト',subtitle:'色違い・リトレーン',note:'色違いシャドウをリトレーンしたライトポケモンを独立管理します。'},
-    {id:'lucky',title:'キラポケモン',short:'キラ',subtitle:'通常色・キラ',note:'交換でキラになった個体を図鑑番号別に管理します。交換不可の種は対象外です。'},
-    {id:'shinylucky',title:'色違い・キラポケモン',short:'色違いキラ',subtitle:'色違い・キラ',note:'色違いのキラポケモンを管理します。交換不可の種や色違い未実装の種は通常の達成率から除外します。'},
   ];
   const GENS=[0,151,251,386,493,649,721,809,905,1025];
   const BASE='https://cdn.jsdelivr.net/gh/WatWowMap/pogo-data-api@main/data/v1/';
@@ -164,47 +159,34 @@
   const isBaseCostume=cat=>cat==='costumepika'||cat==='costumeother';
   const isShinyCostume=cat=>cat==='shinycostumepika'||cat==='shinycostumeother';
   const isCostume=cat=>isBaseCostume(cat)||isShinyCostume(cat);
-  const STATUS_CATS=new Set(['shadow','shinyshadow','purified','shinypurified','lucky','shinylucky']);
+  const STATUS_CATS=new Set(['shadow','purified']);
   const isStatus=cat=>STATUS_CATS.has(cat);
-  const isShinyStatus=cat=>cat==='shinyshadow'||cat==='shinypurified'||cat==='shinylucky';
-  const statusType=cat=>cat.includes('shadow')?'shadow':cat.includes('purified')?'purified':'lucky';
+  const statusType=cat=>cat==='shadow'?'shadow':'purified';
   function appendSpecialStatuses(rows,source){
-    if(!source||!Array.isArray(source.shadowReleased)||!Array.isArray(source.luckyUntradeable))return false;
+    if(!source||!Array.isArray(source.shadowReleased))return false;
     const shadowIds=new Set(source.shadowReleased.map(Number));
-    const excludedTrades=new Set(source.luckyUntradeable.map(Number));
-    const shinyRows=new Map(rows.filter(x=>x.category==='shiny').map(x=>[x.dex,x]));
-    const originals=rows.filter(x=>x.category==='normal');
     const allIds=new Set(rows.map(x=>x.id));
-    for(const base of originals){
-      const normalState=releaseOf(base);
-      const shinyBase=shinyRows.get(base.dex);
-      const shinyState=shinyBase?releaseOf(shinyBase):'unverified';
-      for(const kind of ['shadow','purified','lucky']){
-        const ineligible=kind==='lucky'&&excludedTrades.has(base.dex);
-        const kindExists=normalState==='released'&&(kind==='lucky'?!ineligible:shadowIds.has(base.dex));
-        const status=kindExists?'released':normalState!=='released'?normalState:'unreleased';
-        for(const shiny of [false,true]){
-          const category=(shiny?'shiny':'')+kind,id=category+':'+base.dex;
-          if(allIds.has(id))continue;
-          const releaseStatus=!shiny?status:status!=='released'?status:
-            shinyState==='released'?'released':shinyState==='unverified'?'unverified':'unreleased';
-          const row={
-            id,category,dex:base.dex,name:base.name,english:base.english||'',gen:base.gen,
-            goFile:(shiny?shinyBase?.goFile:base.goFile)||base.goFile,
-            formLegacyIds:(shiny?shinyBase?.formLegacyIds:base.formLegacyIds)||base.formLegacyIds,
-            sub:kind==='shadow'?'シャドウ':kind==='purified'?'ライト（リトレーン）':'キラ',
-            statusKind:kind,releaseStatus,ineligible,
-            shinyAvailable:shiny?shinyState!=='unreleased'&&kindExists:undefined
-          };
-          rows.push(row);allIds.add(id);
-        }
+    for(const base of rows.filter(x=>x.category==='normal')){
+      const baseStatus=releaseOf(base);
+      const releaseStatus=baseStatus==='released'&&shadowIds.has(base.dex)?'released':
+        baseStatus==='released'?'unreleased':baseStatus;
+      for(const category of ['shadow','purified']){
+        const id=category+':'+base.dex;
+        if(allIds.has(id))continue;
+        rows.push({
+          id,category,dex:base.dex,name:base.name,english:base.english||'',gen:base.gen,
+          goFile:base.goFile,formLegacyIds:base.formLegacyIds,
+          sub:category==='shadow'?'シャドウ':'ライト（リトレーン）',
+          statusKind:category,releaseStatus
+        });
+        allIds.add(id);
       }
     }
     return true;
   }
   const isBattleForm=cat=>['mega','shinymega','gmax','shinygmax'].includes(cat);
   const isShinyBattleForm=cat=>cat==='shinymega'||cat==='shinygmax';
-  const isBlockedShiny=x=>(isShinyCostume(x.category)||isShinyBattleForm(x.category)||isShinyStatus(x.category))&&x.shinyAvailable===false;
+  const isBlockedShiny=x=>(isShinyCostume(x.category)||isShinyBattleForm(x.category))&&x.shinyAvailable===false;
   const isGender=cat=>cat==='gender'||cat==='shinygender';
   const isDual=cat=>isGender(cat);
   const ownedKey=x=>isCostume(x.category)?(x.ownedKey||x.id+(isShinyCostume(x.category)?':shiny':':normal')):x.id;
@@ -906,10 +888,10 @@
     }
     const unique=esc(x.id),n=String(x.dex).padStart(4,'0');
     const main=`<div class="card-header"><span class="card-no">No.${n}</span><button type="button" class="mini-menu" data-action="exclude" data-id="${unique}" aria-label="${esc(x.name)}を${excluded?'集計に含める':'集計対象外にする'}" title="集計対象から${excluded?'戻す':'除外'}">⋯</button></div>${badge}`;
-    const shiny=x.category==='shiny'||x.category==='shinyforms'||x.category==='shinygender'||isShinyCostume(x.category)||isShinyBattleForm(x.category)||isShinyStatus(x.category);
+    const shiny=x.category==='shiny'||x.category==='shinyforms'||x.category==='shinygender'||isShinyCostume(x.category)||isShinyBattleForm(x.category);
     const pictures=gender
       ?`<div class="costume-images"><div class="sprite"><small>♂ オス</small>${genderSprite(x.maleFile,x.name+(shiny?' 色違い':'')+' オス',x.dex,'male',shiny)}</div><div class="sprite"><small>♀ メス</small>${genderSprite(x.femaleFile,x.name+(shiny?' 色違い':'')+' メス',x.dex,'female',shiny)}</div></div>`
-      :isStatus(x.category)?`<div class="sprite status-sprite status-${statusType(x.category)}">${spriteTag(x,shiny)}<span class="status-mark" aria-hidden="true">${statusType(x.category)==='shadow'?'影':statusType(x.category)==='purified'?'光':'★'}</span></div>`:`<div class="sprite">${spriteTag(x,shiny)}</div>`;
+      :isStatus(x.category)?`<div class="sprite status-sprite status-${statusType(x.category)}">${spriteTag(x,shiny)}<span class="status-mark" aria-hidden="true">${statusType(x.category)==='shadow'?'影':'光'}</span></div>`:`<div class="sprite">${spriteTag(x,shiny)}</div>`;
     const sub=x.formKind==='regional'?'リージョン：'+x.sub:x.sub;
     const dateDetail=isCostume(x.category)&&x.firstReleaseDate?
       '<span class="costume-date">'+(x.releaseDate?'登場予定：':'初実装：')+
