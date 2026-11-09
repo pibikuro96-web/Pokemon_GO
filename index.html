@@ -104,7 +104,7 @@
 /* Pokémon GO personal collection tracker. No accounts or analytics. */
 (() => {
   'use strict';
-  const VERSION = '2.9.31';
+  const VERSION = '2.9.32';
   const STORE_KEY = 'pogo-personal-collection-v1';
   const CACHE_KEY = 'pogo-catalog-cache-v1';
   const VIEW_KEY = 'pogo-view-position-v1';
@@ -114,8 +114,8 @@
   const percent=(owned,total)=>total?Math.round(owned/total*10000)/100:0;
   const CATS = [
     {id:'normal', title:'通常ポケモン', short:'通常', subtitle:'全国図鑑', note:'全国図鑑番号ごとに独立してチェックします。'},
-    {id:'forms', title:'別フォルム・リージョン',short:'フォルム',subtitle:'姿・地域違い',note:'通常図鑑へ統合した代表姿は「対象外」として参照表示し、達成率には二重計上しません。リージョン専用の通常姿やバトル中だけのモルペコは除外します。未実装・確認中は表示切替オンで表示します。'},
     {id:'shiny',title:'色違い・通常',short:'色違い',subtitle:'通常の色違い',note:'通常種の色違いを通常種とは独立してチェックします。'},
+    {id:'forms', title:'別フォルム・リージョン',short:'フォルム',subtitle:'姿・地域違い',note:'通常図鑑へ統合した代表姿は「対象外」として参照表示し、達成率には二重計上しません。リージョン専用の通常姿やバトル中だけのモルペコは除外します。未実装・確認中は表示切替オンで表示します。'},
     {id:'shinyforms',title:'色違い・別フォルム',short:'色違いフォルム',subtitle:'姿・地域違い',note:'通常図鑑の代表色違いは「対象外」として参照表示し、チェック・進捗は通常色違い側で管理します。リージョンだけの通常姿は追加しません。未実装・未解禁・確認中は表示切替オンで表示します。'},
     {id:'mega',title:'メガシンカ・ゲンシカイキ',short:'メガシンカ',subtitle:'通常色',note:'実際にメガシンカ／ゲンシカイキさせた姿をチェックします。X・Y・Zなどの別形態は独立管理し、未実装候補は表示切替で確認できます。'},
     {id:'shinymega',title:'色違い・メガシンカ',short:'色違いメガ',subtitle:'色違い・ゲンシ含む',note:'色違いのポケモンを実際にメガシンカ／ゲンシカイキさせた姿を、通常色とは別にチェックします。'},
