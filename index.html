@@ -59,6 +59,15 @@
 /* Image display: native transparent Pokémon GO PNGs, with no atlas or background artwork. */
 .sprite,.costume-images .sprite{background:transparent;background-image:none}
 .sprite img,.costume-images .sprite img{display:block;background:transparent;background-image:none;border:0;box-shadow:none;filter:none;mix-blend-mode:normal;object-fit:contain;object-position:center;image-rendering:auto}
+.status-sprite{isolation:isolate;position:relative;border-radius:10px}
+.status-sprite::before{content:"";position:absolute;inset:7px 2px;border-radius:50%;z-index:0;opacity:.75;pointer-events:none}
+.status-shadow::before{background:radial-gradient(ellipse at center,#9f7de46e,#8051c72c 55%,transparent 75%)}
+.status-purified::before{background:radial-gradient(ellipse at center,#e0f8ffdb,#b4eaf75c 55%,transparent 75%)}
+.status-lucky::before{background:radial-gradient(ellipse at center,#f9d97599,#ffebaa4c 56%,transparent 75%)}
+.status-sprite img,.status-sprite .art-missing{position:relative;z-index:1}
+.status-mark{position:absolute;right:3px;top:0;border-radius:6px;padding:1px 4px;font-size:9px;font-weight:900;z-index:2;background:#ece4ff;color:#6f49a3;pointer-events:none}
+.status-purified .status-mark{background:#e1f7fb;color:#337e94}
+.status-lucky .status-mark{background:#fff0bd;color:#926c16}
 </style>
 </head>
 <body>
@@ -104,7 +113,7 @@
 /* Pokémon GO personal collection tracker. No accounts or analytics. */
 (() => {
   'use strict';
-  const VERSION = '2.9.32';
+  const VERSION = '2.9.33';
   const STORE_KEY = 'pogo-personal-collection-v1';
   const CACHE_KEY = 'pogo-catalog-cache-v1';
   const VIEW_KEY = 'pogo-view-position-v1';
@@ -117,16 +126,22 @@
     {id:'shiny',title:'色違い・通常',short:'色違い',subtitle:'通常の色違い',note:'通常種の色違いを通常種とは独立してチェックします。'},
     {id:'forms', title:'別フォルム・リージョン',short:'フォルム',subtitle:'姿・地域違い',note:'通常図鑑へ統合した代表姿は「対象外」として参照表示し、達成率には二重計上しません。リージョン専用の通常姿やバトル中だけのモルペコは除外します。未実装・確認中は表示切替オンで表示します。'},
     {id:'shinyforms',title:'色違い・別フォルム',short:'色違いフォルム',subtitle:'姿・地域違い',note:'通常図鑑の代表色違いは「対象外」として参照表示し、チェック・進捗は通常色違い側で管理します。リージョンだけの通常姿は追加しません。未実装・未解禁・確認中は表示切替オンで表示します。'},
-    {id:'mega',title:'メガシンカ・ゲンシカイキ',short:'メガシンカ',subtitle:'通常色',note:'実際にメガシンカ／ゲンシカイキさせた姿をチェックします。X・Y・Zなどの別形態は独立管理し、未実装候補は表示切替で確認できます。'},
-    {id:'shinymega',title:'色違い・メガシンカ',short:'色違いメガ',subtitle:'色違い・ゲンシ含む',note:'色違いのポケモンを実際にメガシンカ／ゲンシカイキさせた姿を、通常色とは別にチェックします。'},
-    {id:'gmax',title:'キョダイマックス（G-MAX）',short:'G-MAX',subtitle:'キョダイマックス',note:'キョダイマックスできる個体を捕獲・入手したらチェックします。普通のダイマックス個体とは区別し、未実装候補も切り替えて参照できます。'},
-    {id:'shinygmax',title:'色違い・キョダイマックス',short:'色違いG-MAX',subtitle:'色違いキョダイマックス',note:'色違いでキョダイマックス可能な個体を捕獲・入手したらチェックします。色違い未解禁の種類は通常集計に含めません。'},
     {id:'gender',title:'オス・メス差分',short:'オス・メス',subtitle:'性差のある姿',note:'オスとメスを個別にチェックします。両方そろった場合のみ入手済みとなり、達成率に加算されます。'},
     {id:'shinygender',title:'色違い・オス・メス差分',short:'色違いオス・メス',subtitle:'色違いの性差',note:'色違いのオスとメスを個別にチェックします。両方そろうと入手済みになり、通常色とは別に集計します。'},
     {id:'costumepika',title:'衣装・ピカチュウ',short:'衣装ピカチュウ',subtitle:'通常色・実装順',note:'ピカチュウ衣装を初実装の年代・イベント順に表示します。未登場候補は表示切替で確認できます。日付未確認の一部は同年内で暫定順です。'},
     {id:'shinycostumepika',title:'色違い・衣装ピカチュウ',short:'色違い衣装ピカチュウ',subtitle:'色違い・実装順',note:'通常色の初実装順に色違い衣装を並べます。色違いの解禁が確認できない項目は、表示切替オンで確認できます。'},
     {id:'costumeother',title:'衣装・その他',short:'衣装その他',subtitle:'通常色',note:'ピカチュウ以外の衣装の通常色を管理します。'},
     {id:'shinycostumeother',title:'色違い・衣装その他',short:'色違い衣装その他',subtitle:'色違い衣装',note:'ピカチュウ以外の衣装の色違いを独立して管理します。未解禁・確認中は表示切替をオンにした場合のみ表示します。'},
+    {id:'mega',title:'メガシンカ・ゲンシカイキ',short:'メガシンカ',subtitle:'通常色',note:'実際にメガシンカ／ゲンシカイキさせた姿をチェックします。X・Y・Zなどの別形態は独立管理し、未実装候補は表示切替で確認できます。'},
+    {id:'shinymega',title:'色違い・メガシンカ',short:'色違いメガ',subtitle:'色違い・ゲンシ含む',note:'色違いのポケモンを実際にメガシンカ／ゲンシカイキさせた姿を、通常色とは別にチェックします。'},
+    {id:'gmax',title:'キョダイマックス（G-MAX）',short:'G-MAX',subtitle:'キョダイマックス',note:'キョダイマックスできる個体を捕獲・入手したらチェックします。普通のダイマックス個体とは区別し、未実装候補も切り替えて参照できます。'},
+    {id:'shinygmax',title:'色違い・キョダイマックス',short:'色違いG-MAX',subtitle:'色違いキョダイマックス',note:'色違いでキョダイマックス可能な個体を捕獲・入手したらチェックします。色違い未解禁の種類は通常集計に含めません。'},
+    {id:'shadow',title:'シャドウポケモン',short:'シャドウ',subtitle:'通常色・シャドウ',note:'過去にシャドウとして登場したポケモンを図鑑番号別にチェックします。現在のロケット団の出現対象だけではなく歴代の実装を含みます。'},
+    {id:'shinyshadow',title:'色違い・シャドウポケモン',short:'色違いシャドウ',subtitle:'色違い・シャドウ',note:'色違いシャドウを通常色と独立してチェックします。通常の色違いを入手しただけではチェックしません。'},
+    {id:'purified',title:'ライト（リトレーン）ポケモン',short:'ライト',subtitle:'通常色・リトレーン',note:'シャドウをリトレーンした個体を図鑑番号ごとにチェックします。シャドウ・通常の個体とは別管理です。'},
+    {id:'shinypurified',title:'色違い・ライトポケモン',short:'色違いライト',subtitle:'色違い・リトレーン',note:'色違いシャドウをリトレーンしたライトポケモンを独立管理します。'},
+    {id:'lucky',title:'キラポケモン',short:'キラ',subtitle:'通常色・キラ',note:'交換でキラになった個体を図鑑番号別に管理します。交換不可の種は対象外です。'},
+    {id:'shinylucky',title:'色違い・キラポケモン',short:'色違いキラ',subtitle:'色違い・キラ',note:'色違いのキラポケモンを管理します。交換不可の種や色違い未実装の種は通常の達成率から除外します。'},
   ];
   const GENS=[0,151,251,386,493,649,721,809,905,1025];
   const BASE='https://cdn.jsdelivr.net/gh/WatWowMap/pogo-data-api@main/data/v1/';
@@ -135,6 +150,7 @@
   const HAIL_RAW='https://raw.githubusercontent.com/Hailey-Ross/hailsDotGO/main/internal/costumes/';
   const POGO='https://pogoapi.net/api/v1/';
   const GO_ASSET_MANIFEST='./assets-index.json';
+  const STATUS_MANIFEST='./special-status-data.json';
   const LOCAL_CATALOG='./catalog-data.json';
   const GENDER_DATA='./gender-data.json';
   const FALLBACK_SPECIES={1:'フシギダネ',4:'ヒトカゲ',7:'ゼニガメ',25:'ピカチュウ',26:'ライチュウ',37:'ロコン',38:'キュウコン',52:'ニャース',58:'ガーディ',100:'ビリリダマ',133:'イーブイ',201:'アンノーン',327:'パッチール',351:'ポワルン',386:'デオキシス',479:'ロトム',487:'ギラティナ',492:'シェイミ',550:'バスラオ',585:'シキジカ',586:'メブキジカ',641:'トルネロス',642:'ボルトロス',645:'ランドロス',666:'ビビヨン',678:'ニャオニクス',720:'フーパ',741:'オドリドリ',746:'ヨワシ',774:'メテノ',800:'ネクロズマ',849:'ストリンダー',869:'マホイップ',888:'ザシアン',889:'ザマゼンタ',901:'ガチグマ',978:'シャリタツ',999:'コレクレー'};
@@ -148,9 +164,47 @@
   const isBaseCostume=cat=>cat==='costumepika'||cat==='costumeother';
   const isShinyCostume=cat=>cat==='shinycostumepika'||cat==='shinycostumeother';
   const isCostume=cat=>isBaseCostume(cat)||isShinyCostume(cat);
+  const STATUS_CATS=new Set(['shadow','shinyshadow','purified','shinypurified','lucky','shinylucky']);
+  const isStatus=cat=>STATUS_CATS.has(cat);
+  const isShinyStatus=cat=>cat==='shinyshadow'||cat==='shinypurified'||cat==='shinylucky';
+  const statusType=cat=>cat.includes('shadow')?'shadow':cat.includes('purified')?'purified':'lucky';
+  function appendSpecialStatuses(rows,source){
+    if(!source||!Array.isArray(source.shadowReleased)||!Array.isArray(source.luckyUntradeable))return false;
+    const shadowIds=new Set(source.shadowReleased.map(Number));
+    const excludedTrades=new Set(source.luckyUntradeable.map(Number));
+    const shinyRows=new Map(rows.filter(x=>x.category==='shiny').map(x=>[x.dex,x]));
+    const originals=rows.filter(x=>x.category==='normal');
+    const allIds=new Set(rows.map(x=>x.id));
+    for(const base of originals){
+      const normalState=releaseOf(base);
+      const shinyBase=shinyRows.get(base.dex);
+      const shinyState=shinyBase?releaseOf(shinyBase):'unverified';
+      for(const kind of ['shadow','purified','lucky']){
+        const ineligible=kind==='lucky'&&excludedTrades.has(base.dex);
+        const kindExists=normalState==='released'&&(kind==='lucky'?!ineligible:shadowIds.has(base.dex));
+        const status=kindExists?'released':normalState!=='released'?normalState:'unreleased';
+        for(const shiny of [false,true]){
+          const category=(shiny?'shiny':'')+kind,id=category+':'+base.dex;
+          if(allIds.has(id))continue;
+          const releaseStatus=!shiny?status:status!=='released'?status:
+            shinyState==='released'?'released':shinyState==='unverified'?'unverified':'unreleased';
+          const row={
+            id,category,dex:base.dex,name:base.name,english:base.english||'',gen:base.gen,
+            goFile:(shiny?shinyBase?.goFile:base.goFile)||base.goFile,
+            formLegacyIds:(shiny?shinyBase?.formLegacyIds:base.formLegacyIds)||base.formLegacyIds,
+            sub:kind==='shadow'?'シャドウ':kind==='purified'?'ライト（リトレーン）':'キラ',
+            statusKind:kind,releaseStatus,ineligible,
+            shinyAvailable:shiny?shinyState!=='unreleased'&&kindExists:undefined
+          };
+          rows.push(row);allIds.add(id);
+        }
+      }
+    }
+    return true;
+  }
   const isBattleForm=cat=>['mega','shinymega','gmax','shinygmax'].includes(cat);
   const isShinyBattleForm=cat=>cat==='shinymega'||cat==='shinygmax';
-  const isBlockedShiny=x=>(isShinyCostume(x.category)||isShinyBattleForm(x.category))&&x.shinyAvailable===false;
+  const isBlockedShiny=x=>(isShinyCostume(x.category)||isShinyBattleForm(x.category)||isShinyStatus(x.category))&&x.shinyAvailable===false;
   const isGender=cat=>cat==='gender'||cat==='shinygender';
   const isDual=cat=>isGender(cat);
   const ownedKey=x=>isCostume(x.category)?(x.ownedKey||x.id+(isShinyCostume(x.category)?':shiny':':normal')):x.id;
@@ -159,7 +213,7 @@
   const eligibility=x=>!state.excluded[x.id]&&releaseOf(x)==='released';
   // Hidden, unverified entries do not count. Showing them opts into their progress slots.
   function countedSlots(x){
-    if(x.mirrorOf||state.excluded[x.id]||(!els.showUnreleased.checked&&releaseOf(x)!=='released'))return [];
+    if(x.mirrorOf||x.ineligible||state.excluded[x.id]||(!els.showUnreleased.checked&&releaseOf(x)!=='released'))return [];
     if(isGender(x.category))return [x.id]; // One completion slot per species: both sexes are required.
     if(isBlockedShiny(x))return [];
     return [ownedKey(x)];
@@ -353,6 +407,10 @@
     }
     if(isBattleForm(cat)){
       go(specified); // Exact Pokémon GO battle-form asset only; no other form or generic sprite.
+      return out;
+    }
+    if(isStatus(cat)){
+      go(exactDexGoFile(entry,shiny)); // The correct GO species artwork, with a distinct status overlay.
       return out;
     }
     if(cat==='forms'||cat==='shinyforms'){
@@ -751,10 +809,11 @@
     els.status.className='notice';
     els.status.innerHTML='<span class="pulse"></span>リポジトリ内の図鑑・画像索引を読み込んでいます…';
     const settled=await Promise.allSettled([
-      fetchJSON([LOCAL_CATALOG+'?v='+VERSION]),fetchJSON([GO_ASSET_MANIFEST+'?v='+VERSION])
+      fetchJSON([LOCAL_CATALOG+'?v='+VERSION]),fetchJSON([GO_ASSET_MANIFEST+'?v='+VERSION]),fetchJSON([STATUS_MANIFEST+'?v='+VERSION])
     ]);
     const pack=settled[0].status==='fulfilled'?settled[0].value:null;
     const spriteInfo=settled[1].status==='fulfilled'?settled[1].value:{};
+    const statusSource=settled[2].status==='fulfilled'?settled[2].value:null;
     GO_FILES=new Set(Array.isArray(spriteInfo.available)?spriteInfo.available:[]);
     GO_BASE=typeof spriteInfo.base==='string'&&spriteInfo.base.startsWith('https://cdn.jsdelivr.net/gh/PokeMiners/')?spriteInfo.base:'';
     const revision=String(spriteInfo.commit||'');
@@ -767,6 +826,7 @@
       els.status.className='notice warn';
       els.status.textContent='ローカル図鑑を読み込めませんでした。サンプルのみ表示しています。ネット接続を確認してください。';
     }else{
+      const statusesReady=appendSpecialStatuses(rows,statusSource);
       addCustomToCatalog(rows);
       ensureShinyCostumes(rows);
       const unique=auditCatalog(rows);
@@ -779,12 +839,12 @@
       migrateFormerFormChecks(unique);
       migrateCostumeExclusions(unique);
       data=[...unique,...makeRepresentativeMirrors(unique,pack)].sort(sortEntries);
-      sourceStatus=GO_FILES.size&&(GO_BASE||GO_RAW_BASE)?'ready':'partial';
+      sourceStatus=GO_FILES.size&&(GO_BASE||GO_RAW_BASE)&&statusesReady?'ready':'partial';
       if(sourceStatus==='ready'){
         els.status.hidden=true;
       }else{
         els.status.className='notice warn';
-        els.status.textContent='図鑑は読み込めましたが、Pokémon GO画像索引を取得できません。画像は代用せず未取得として表示します。';
+        els.status.textContent=!statusesReady?'特殊ポケモンの判定データを取得できません。再読み込みしてください。':'Pokémon GO画像索引を取得できません。画像は代用せず未取得として表示します。';
       }
     }
     if(force)message('リポジトリ内の図鑑を再読み込みしました');
@@ -833,7 +893,7 @@
     const gender=isGender(x.category),excluded=Boolean(state.excluded[x.id]),yes=isOwned(x);
     const ownClass=excluded?'excluded':yes?'owned':'';
     const release=releaseOf(x);
-    const unreleasedLabel=isBlockedShiny(x)?'色違い未解禁':
+    const unreleasedLabel=x.ineligible?'交換不可':isBlockedShiny(x)?'色違い未解禁':
       isCostume(x.category)&&x.releaseDate?'登場予定':'未実装';
     const badge=excluded?'<span class="card-badge excluded-badge">対象外</span>':
       release==='unreleased'?'<span class="card-badge" title="'+esc(x.releaseDate?'登場予定 '+x.releaseDate:unreleasedLabel)+'">'+unreleasedLabel+'</span>':
@@ -846,10 +906,10 @@
     }
     const unique=esc(x.id),n=String(x.dex).padStart(4,'0');
     const main=`<div class="card-header"><span class="card-no">No.${n}</span><button type="button" class="mini-menu" data-action="exclude" data-id="${unique}" aria-label="${esc(x.name)}を${excluded?'集計に含める':'集計対象外にする'}" title="集計対象から${excluded?'戻す':'除外'}">⋯</button></div>${badge}`;
-    const shiny=x.category==='shiny'||x.category==='shinyforms'||x.category==='shinygender'||isShinyCostume(x.category)||isShinyBattleForm(x.category);
+    const shiny=x.category==='shiny'||x.category==='shinyforms'||x.category==='shinygender'||isShinyCostume(x.category)||isShinyBattleForm(x.category)||isShinyStatus(x.category);
     const pictures=gender
       ?`<div class="costume-images"><div class="sprite"><small>♂ オス</small>${genderSprite(x.maleFile,x.name+(shiny?' 色違い':'')+' オス',x.dex,'male',shiny)}</div><div class="sprite"><small>♀ メス</small>${genderSprite(x.femaleFile,x.name+(shiny?' 色違い':'')+' メス',x.dex,'female',shiny)}</div></div>`
-      :`<div class="sprite">${spriteTag(x,shiny)}</div>`;
+      :isStatus(x.category)?`<div class="sprite status-sprite status-${statusType(x.category)}">${spriteTag(x,shiny)}<span class="status-mark" aria-hidden="true">${statusType(x.category)==='shadow'?'影':statusType(x.category)==='purified'?'光':'★'}</span></div>`:`<div class="sprite">${spriteTag(x,shiny)}</div>`;
     const sub=x.formKind==='regional'?'リージョン：'+x.sub:x.sub;
     const dateDetail=isCostume(x.category)&&x.firstReleaseDate?
       '<span class="costume-date">'+(x.releaseDate?'登場予定：':'初実装：')+
@@ -860,7 +920,7 @@
       const obtained=Number(male)+Number(female);
       return `<article class="pokemon-card ${ownClass}" data-id="${unique}">${main}<div class="card-main">${inner}</div><div class="costume-foot"><button type="button" class="mini-check ${male?'checked':''}" data-id="${unique}" data-action="male" aria-pressed="${male}">${male?'✓ ':''}${shiny?'★':''}♂ オス</button><button type="button" class="mini-check gender-female ${female?'checked':''}" data-id="${unique}" data-action="female" aria-pressed="${female}">${female?'✓ ':''}${shiny?'★':''}♀ メス</button></div><div class="card-foot gender-completion"><span class="captured-dot">${yes?'✓':'○'}</span>${yes?'入手済み':'未入手'}（${obtained}/2）</div></article>`;
     }
-    const noShiny=isBlockedShiny(x);
+    const noShiny=isBlockedShiny(x)||x.ineligible;
     return `<article class="pokemon-card ${ownClass}" data-id="${unique}">${main}<button type="button" class="card-main" data-action="check" data-id="${unique}" aria-pressed="${yes}" aria-label="${esc(x.name)} ${esc(x.sub)} ${yes?'入手済み':'未入手'}" ${noShiny?'disabled title="色違い未解禁のためチェックできません"':''}>${inner}</button><div class="card-foot"><span class="captured-dot">${noShiny?'–':yes?'✓':'○'}</span>${noShiny?'色違い未解禁':yes?'入手済み':'未入手'}${isShinyCostume(x.category)?' ★色違い':''}</div></article>`;
   }
   function filteredRows(){
@@ -928,19 +988,19 @@
   function toggleOwnership(id,kind){
     const x=data.find(r=>r.id===id);if(!x||x.mirrorOf)return;
     if(isDual(x.category)&&!['male','female'].includes(kind))return;
-    if(isBlockedShiny(x))return;
+    if(isBlockedShiny(x)||x.ineligible)return;
     const k=isDual(x.category)?id+':'+kind:ownedKey(x);
     if(state.owned[k])delete state.owned[k];else state.owned[k]=true;
     persist();render();
   }
   function bulkUpdate(select){
-    const cat=CATS.find(c=>c.id===active),rows=filteredRows().filter(x=>!x.mirrorOf&&!state.excluded[x.id]);
+    const cat=CATS.find(c=>c.id===active),rows=filteredRows().filter(x=>!x.mirrorOf&&!x.ineligible&&!state.excluded[x.id]);
     if(!rows.length){message('選択対象のポケモンがありません');return;}
     const verb=select?'すべて入手済みに登録':'すべて未入手に戻す';
     if(!window.confirm(cat.title+'：検索・絞り込みに一致する'+rows.length+'件を'+verb+'しますか？\n続きページも含みます。他のタブは変更しません。'))return;
     for(const x of rows){
       const keys=isGender(x.category)?[x.id+':male',x.id+':female']:
-        isBlockedShiny(x)?[]:[ownedKey(x)];
+        isBlockedShiny(x)||x.ineligible?[]:[ownedKey(x)];
       for(const k of keys){
         if(select)state.owned[k]=true;else delete state.owned[k];
       }
